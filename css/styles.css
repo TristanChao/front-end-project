@@ -1,0 +1,109 @@
+body {
+  font-family: Quattrocento, 'Times New Roman', Times, serif;
+}
+
+h1 {
+  font-family: 'Playfair Display', 'Times New Roman', Times, serif;
+}
+
+.view {
+  margin-left: auto;
+  margin-right: auto;
+  width: 350px;
+  padding-left: 15px;
+  padding-right: 15px;
+}
+
+.header {
+  height: 80px;
+  background-color: #333;
+  border-bottom: 4px solid #f00;
+  display: flex;
+  align-items: center;
+}
+
+#title {
+  margin-left: 15px;
+  color: white;
+  font-size: 28px;
+}
+
+#spells-list-cards-div {
+  justify-content: space-between;
+}
+
+.card {
+  background-color: #fff9eb;
+  border-radius: 5px;
+  border: 1px solid #f5e8cc;
+  box-shadow: 2px 4px 4px;
+  width: 150px;
+  height: 225px;
+  margin-bottom: 20px;
+}
+
+.card-top-div {
+  margin-top: 7px;
+  margin-left: 7px;
+  margin-right: 7px;
+  height: 25px;
+}
+
+.card-level-span {
+  margin-top: 3px;
+  margin-left: 3px;
+  font-size: 16px;
+}
+
+.spell-circle-div {
+  width: 90px;
+  height: 90px;
+  border-radius: 50%;
+  margin-top: 15px;
+  margin-left: auto;
+  margin-right: auto;
+  margin-bottom: 10px;
+}
+
+.spell-circle-img {
+  width: 100%;
+}
+
+.spell-card-name-div {
+  height: 65px;
+  margin-left: 10px;
+  margin-right: 10px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.spell-card-name-span {
+  font-size: 20px;
+  text-align: center;
+}
+
+@media (width >= 550px) {
+  .view {
+    width: 490px;
+    padding: 0;
+  }
+}
+
+@media (width >= 720px) {
+  .view {
+    width: 660px;
+  }
+}
+
+@media (width >= 890px) {
+  .view {
+    width: 830px;
+  }
+}
+
+@media (width >= 1078px) {
+  .view {
+    width: 1000px;
+  }
+}

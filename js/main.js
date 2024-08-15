@@ -1,10 +1,7 @@
-const $spellsListCardsDiv = document.querySelector(
-  '#spells-list-cards-div',
-) as HTMLDivElement;
-
+'use strict';
+const $spellsListCardsDiv = document.querySelector('#spells-list-cards-div');
 if (!$spellsListCardsDiv) throw new Error('$spellsListCardsDiv query failed');
-
-function randomSpellCircleColor(): string {
+function randomSpellCircleColor() {
   const randInt = Math.floor(Math.random() * 7);
   switch (randInt) {
     case 0:
@@ -23,46 +20,24 @@ function randomSpellCircleColor(): string {
       return 'images/magic-circle-pink.png';
   }
 }
-
-interface GeneralSpell {
-  index: string;
-  name: string;
-  level: number;
-  url: string;
-}
-
-interface AllSpells {
-  count: number;
-  results: GeneralSpell[];
-}
-
-let basicSpellData: AllSpells;
-
-async function getAllSpellData(): Promise<void> {
+let basicSpellData;
+async function getAllSpellData() {
   try {
     const response = await fetch('https://www.dnd5eapi.co/api/spells');
     if (!response.ok)
       throw new Error(`Fetch error. Status: ${response.status}`);
-    basicSpellData = (await response.json()) as AllSpells;
+    basicSpellData = await response.json();
   } catch (err) {
     console.error('Error:', err);
   }
 }
-
-function renderCard(
-  spellName: string,
-  spellLevel: number,
-  spellUrl: string,
-): HTMLDivElement {
+function renderCard(spellName, spellLevel, spellUrl) {
   if (!$spellsListCardsDiv) throw new Error('$spellsListCardsDiv query failed');
-
   const $card = document.createElement('div');
   $card.className = 'card';
   $card.setAttribute('data-url', spellUrl);
-
   const $topDiv = document.createElement('div');
   $topDiv.className = 'card-top-div';
-
   const $levelSpan = document.createElement('span');
   $levelSpan.className = 'card-level-span';
   switch (spellLevel) {
@@ -81,20 +56,16 @@ function renderCard(
     default:
       $levelSpan.textContent = spellLevel.toString() + 'th';
   }
-
   const $spellCircleDiv = document.createElement('div');
   $spellCircleDiv.className = 'spell-circle-div';
-
   const $spellCircleImg = document.createElement('img');
   $spellCircleImg.className = 'spell-circle-img';
   $spellCircleImg.setAttribute('src', randomSpellCircleColor());
   $spellCircleImg.setAttribute('alt', 'Spell Circle');
-
   const $nameDiv = document.createElement('div');
   $nameDiv.className = 'spell-card-name-div';
-
   const $nameSpan = document.createElement('span');
-  let nameTxtCnt: string;
+  let nameTxtCnt;
   switch (spellName) {
     case 'Antipathy/Sympathy':
       nameTxtCnt = 'Antipathy/ Sympathy';
@@ -110,25 +81,20 @@ function renderCard(
   }
   $nameSpan.textContent = nameTxtCnt;
   $nameSpan.className = 'spell-card-name-span';
-
   $card.appendChild($topDiv);
   $topDiv.appendChild($levelSpan);
   $card.appendChild($spellCircleDiv);
   $spellCircleDiv.appendChild($spellCircleImg);
   $card.appendChild($nameDiv);
   $nameDiv.appendChild($nameSpan);
-
   return $card;
 }
-
-async function renderAllCards(): Promise<void> {
+async function renderAllCards() {
   await getAllSpellData();
-
   for (let i = 0; i < basicSpellData.count; i++) {
     const spellInfo = basicSpellData.results[i];
     const $card = renderCard(spellInfo.name, spellInfo.level, spellInfo.url);
     $spellsListCardsDiv.appendChild($card);
   }
 }
-
 renderAllCards();
