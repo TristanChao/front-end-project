@@ -44,7 +44,6 @@ async function getAllSpellData(): Promise<void> {
     if (!response.ok)
       throw new Error(`Fetch error. Status: ${response.status}`);
     basicSpellData = (await response.json()) as AllSpells;
-    console.log(basicSpellData);
   } catch (err) {
     console.error('Error:', err);
   }
