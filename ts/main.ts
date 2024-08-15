@@ -53,7 +53,7 @@ function renderCard(
   spellName: string,
   spellLevel: number,
   spellUrl: string,
-): void {
+): HTMLDivElement {
   if (!$spellsListCardsDiv) throw new Error('$spellsListCardsDiv query failed');
 
   const $card = document.createElement('div');
@@ -118,7 +118,7 @@ function renderCard(
   $card.appendChild($nameDiv);
   $nameDiv.appendChild($nameSpan);
 
-  $spellsListCardsDiv.appendChild($card);
+  return $card;
 }
 
 async function renderAllCards(): Promise<void> {
@@ -126,7 +126,8 @@ async function renderAllCards(): Promise<void> {
 
   for (let i = 0; i < basicSpellData.count; i++) {
     const spellInfo = basicSpellData.results[i];
-    renderCard(spellInfo.name, spellInfo.level, spellInfo.url);
+    const $card = renderCard(spellInfo.name, spellInfo.level, spellInfo.url);
+    $spellsListCardsDiv.appendChild($card);
   }
 }
 

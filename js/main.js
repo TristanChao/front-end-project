@@ -87,13 +87,14 @@ function renderCard(spellName, spellLevel, spellUrl) {
   $spellCircleDiv.appendChild($spellCircleImg);
   $card.appendChild($nameDiv);
   $nameDiv.appendChild($nameSpan);
-  $spellsListCardsDiv.appendChild($card);
+  return $card;
 }
 async function renderAllCards() {
   await getAllSpellData();
   for (let i = 0; i < basicSpellData.count; i++) {
     const spellInfo = basicSpellData.results[i];
-    renderCard(spellInfo.name, spellInfo.level, spellInfo.url);
+    const $card = renderCard(spellInfo.name, spellInfo.level, spellInfo.url);
+    $spellsListCardsDiv.appendChild($card);
   }
 }
 renderAllCards();
