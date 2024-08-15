@@ -16,6 +16,9 @@
     <link
       href="https://fonts.googleapis.com/css2?family=Nunito:ital,wght@0,200..1000;1,200..1000&family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=Quattrocento:wght@400;700&display=swap"
       rel="stylesheet" />
+    <script
+      src="https://kit.fontawesome.com/eedb239268.js"
+      crossorigin="anonymous"></script>
   </head>
   <body>
     <header>
@@ -24,9 +27,15 @@
       </div>
     </header>
     <main>
-      <div class="view" data-view="all-spells-list">
+      <div id="spells-list-view" class="view hidden">
         <h1>Spells List</h1>
         <div id="spells-list-cards-div" class="row"></div>
+      </div>
+      <div id="spell-details-view" class="view">
+        <a id="spell-details-back-anchor" class="hover-pointer">
+          <i class="fa-solid fa-chevron-left"></i>
+          Back
+        </a>
       </div>
     </main>
     <script src="js/data.js"></script>

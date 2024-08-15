@@ -1,7 +1,13 @@
+// SPELLS LIST -----------------------------------------------------------------
+
+const $spellsListView = document.querySelector(
+  '#spells-list-view',
+) as HTMLDivElement;
 const $spellsListCardsDiv = document.querySelector(
   '#spells-list-cards-div',
 ) as HTMLDivElement;
 
+if (!$spellsListView) throw new Error('$spellsListView query failed');
 if (!$spellsListCardsDiv) throw new Error('$spellsListCardsDiv query failed');
 
 function randomSpellCircleColor(): string {
@@ -132,3 +138,19 @@ async function renderAllCards(): Promise<void> {
 }
 
 renderAllCards();
+
+// SPELL DETAILS ---------------------------------------------------------------
+
+const $spellDetailsView = document.querySelector('#spell-details-view');
+const $spellDetailsBackAnchor = document.querySelector(
+  '#spell-details-back-anchor',
+) as HTMLAnchorElement;
+
+if (!$spellDetailsView) throw new Error('$spellDetailsView query failed');
+if (!$spellDetailsBackAnchor)
+  throw new Error('$spellDetailsBackAnchor query failed');
+
+$spellDetailsBackAnchor.addEventListener('click', () => {
+  $spellDetailsView.className += 'hidden';
+  $spellsListView.classList.remove('hidden');
+});

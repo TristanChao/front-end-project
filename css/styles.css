@@ -9,9 +9,13 @@ h1 {
 .view {
   margin-left: auto;
   margin-right: auto;
-  width: 350px;
   padding-left: 15px;
   padding-right: 15px;
+  max-width: 1000px;
+}
+
+#spells-list-view {
+  width: 350px;
 }
 
 .header {
@@ -83,27 +87,35 @@ h1 {
   text-align: center;
 }
 
+#spell-details-view {
+  padding-top: 20px;
+}
+
+#spell-details-back-anchor {
+  font-size: 20px;
+}
+
 @media (width >= 550px) {
-  .view {
+  #spells-list-view {
     width: 490px;
     padding: 0;
   }
 }
 
 @media (width >= 720px) {
-  .view {
+  #spells-list-view {
     width: 660px;
   }
 }
 
 @media (width >= 890px) {
-  .view {
+  #spells-list-view {
     width: 830px;
   }
 }
 
 @media (width >= 1078px) {
-  .view {
+  #spells-list-view {
     width: 1000px;
   }
 }

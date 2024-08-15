@@ -1,5 +1,8 @@
 'use strict';
+// SPELLS LIST -----------------------------------------------------------------
+const $spellsListView = document.querySelector('#spells-list-view');
 const $spellsListCardsDiv = document.querySelector('#spells-list-cards-div');
+if (!$spellsListView) throw new Error('$spellsListView query failed');
 if (!$spellsListCardsDiv) throw new Error('$spellsListCardsDiv query failed');
 function randomSpellCircleColor() {
   const randInt = Math.floor(Math.random() * 7);
@@ -98,3 +101,15 @@ async function renderAllCards() {
   }
 }
 renderAllCards();
+// SPELL DETAILS ---------------------------------------------------------------
+const $spellDetailsView = document.querySelector('#spell-details-view');
+const $spellDetailsBackAnchor = document.querySelector(
+  '#spell-details-back-anchor',
+);
+if (!$spellDetailsView) throw new Error('$spellDetailsView query failed');
+if (!$spellDetailsBackAnchor)
+  throw new Error('$spellDetailsBackAnchor query failed');
+$spellDetailsBackAnchor.addEventListener('click', () => {
+  $spellDetailsView.className += 'hidden';
+  $spellsListView.classList.remove('hidden');
+});
