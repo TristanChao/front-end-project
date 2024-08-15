@@ -50,15 +50,22 @@ async function getAllSpellData(): Promise<void> {
   }
 }
 
-function renderCard(spellName: string, spellLevel: number): void {
+function renderCard(
+  spellName: string,
+  spellLevel: number,
+  spellUrl: string,
+): void {
   if (!$spellsListCardsDiv) throw new Error('$spellsListCardsDiv query failed');
 
   const $card = document.createElement('div');
   $card.className = 'card';
+  $card.setAttribute('data-url', spellUrl);
 
   const $topDiv = document.createElement('div');
+  $topDiv.className = 'card-top-div';
 
   const $levelSpan = document.createElement('span');
+  $levelSpan.className = 'card-level-span';
   switch (spellLevel) {
     case 0:
       $levelSpan.textContent = 'Cantrip';
@@ -88,7 +95,22 @@ function renderCard(spellName: string, spellLevel: number): void {
   $nameDiv.className = 'spell-card-name-div';
 
   const $nameSpan = document.createElement('span');
-  $nameSpan.textContent = spellName;
+  let nameTxtCnt: string;
+  switch (spellName) {
+    case 'Antipathy/Sympathy':
+      nameTxtCnt = 'Antipathy/ Sympathy';
+      break;
+    case 'Blindness/Deafness':
+      nameTxtCnt = 'Blindness/ Deafness';
+      break;
+    case 'Enlarge/Reduce':
+      nameTxtCnt = 'Enlarge/ Reduce';
+      break;
+    default:
+      nameTxtCnt = spellName;
+  }
+  $nameSpan.textContent = nameTxtCnt;
+  $nameSpan.className = 'spell-card-name-span';
 
   $card.appendChild($topDiv);
   $topDiv.appendChild($levelSpan);
@@ -104,7 +126,8 @@ async function renderAllCards(): Promise<void> {
   await getAllSpellData();
 
   for (let i = 0; i < basicSpellData.count; i++) {
-    renderCard(basicSpellData.results[i].name, basicSpellData.results[i].level);
+    const spellInfo = basicSpellData.results[i];
+    renderCard(spellInfo.name, spellInfo.level, spellInfo.url);
   }
 }
 
