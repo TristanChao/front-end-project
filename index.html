@@ -11,10 +11,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=Nunito:ital,wght@0,200..1000;1,200..1000&family=Playfair+Display:ital,wght@0,400..900;1,400..900&display=swap"
-      rel="stylesheet" />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Nunito:ital,wght@0,200..1000;1,200..1000&family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=Quattrocento:wght@400;700&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=Quattrocento:wght@400;700&display=swap"
       rel="stylesheet" />
     <script
       src="https://kit.fontawesome.com/eedb239268.js"
@@ -36,6 +33,42 @@
           <i class="fa-solid fa-chevron-left"></i>
           Back
         </a>
+        <div class="spell-details-group">
+          <h1 id="spell-details-name">Spell Name</h1>
+          <div>
+            <span id="spell-details-level-school">level and school</span>
+          </div>
+        </div>
+        <div class="spell-details-group">
+          <div>
+            <span style="font-weight: 700">Casting Time: </span>
+            <span id="spell-details-cast-time">cast time</span>
+          </div>
+          <div>
+            <span style="font-weight: 700">Range: </span>
+            <span id="spell-details-range">range</span>
+          </div>
+          <div>
+            <span style="font-weight: 700">Components: </span>
+            <span id="spell-details-components">components</span>
+          </div>
+          <div>
+            <span style="font-weight: 700">Duration: </span>
+            <span id="spell-details-duration">duration</span>
+          </div>
+        </div>
+        <div id="spell-details-description" class="spell-details-group"></div>
+        <div id="spell-details-higher-levels" class="spell-details-group"></div>
+        <div class="spell-details-group">
+          <div>
+            <span style="font-weight: 700">Classes: </span>
+            <span id="spell-details-classes">classes</span>
+          </div>
+          <div>
+            <span style="font-weight: 700">Subclasses: </span>
+            <span id="spell-details-subclasses">subclasses</span>
+          </div>
+        </div>
       </div>
     </main>
     <script src="js/data.js"></script>
