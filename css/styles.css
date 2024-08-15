@@ -1,0 +1,21 @@
+body {
+  font-family: Quattrocento, 'Times New Roman', Times, serif;
+}
+
+h1 {
+  font-family: 'Playfair Display', 'Times New Roman', Times, serif;
+}
+
+.header {
+  height: 80px;
+  background-color: #333;
+  border-bottom: 4px solid #f00;
+  display: flex;
+  align-items: center;
+}
+
+#title {
+  margin-left: 15px;
+  color: white;
+  font-size: 28px;
+}
