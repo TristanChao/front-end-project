@@ -19,3 +19,28 @@ h1 {
   color: white;
   font-size: 28px;
 }
+
+.card {
+  background-color: #fff9eb;
+  border-radius: 5px;
+  border: 1px solid #f5e8cc;
+  box-shadow: 2px 4px 4px;
+  width: 150px;
+  height: 225px;
+}
+
+.spell-circle-div {
+  width: 90px;
+  height: 90px;
+  border-radius: 50%;
+}
+
+.spell-circle-img {
+  width: 100%;
+}
+
+.spell-card-name-div {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
