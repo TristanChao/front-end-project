@@ -14,10 +14,6 @@ h1 {
   max-width: 1000px;
 }
 
-#spells-list-view {
-  width: 350px;
-}
-
 .header {
   height: 80px;
   background-color: #333;
@@ -30,6 +26,12 @@ h1 {
   margin-left: 15px;
   color: white;
   font-size: 28px;
+}
+
+/* SPELLS LIST VIEW */
+
+#spells-list-view {
+  width: 350px;
 }
 
 #spells-list-cards-div {
@@ -93,12 +95,73 @@ h1 {
   text-align: center;
 }
 
+/* SPELL DETAILS VIEW */
+
 #spell-details-view {
   padding-top: 20px;
+  min-width: 350px;
 }
 
 #spell-details-back-anchor {
   font-size: 20px;
+}
+
+#spell-scroll-page {
+  margin-left: 30px;
+  margin-right: 30px;
+  margin-top: 40px;
+  background-image: linear-gradient(#fff9eb, #faf1dd 70%, #f5e8cc 90%);
+}
+
+#spell-scroll-top,
+#spell-scroll-bottom {
+  background-color: #f5e8cc;
+  height: 50px;
+  position: relative;
+  width: calc(100%);
+  display: flex;
+  justify-content: space-between;
+}
+
+#spell-scroll-top {
+  top: -20px;
+  left: 15px;
+}
+
+#spell-scroll-bottom {
+  bottom: -20px;
+  right: 15px;
+}
+
+.scroll-end {
+  width: 30px;
+  height: 50px;
+  border-radius: 50%;
+  position: relative;
+}
+
+.scroll-end-dark {
+  background-color: #efdeb8;
+  left: -15px;
+}
+
+.scroll-end-light {
+  background-color: #f5e8cc;
+  right: -15px;
+}
+
+#all-spell-details {
+  margin-left: 20px;
+  margin-right: 20px;
+}
+
+#spell-details-name {
+  margin-bottom: 0;
+  margin-top: 10px;
+}
+
+.spell-details-group {
+  margin-bottom: 20px;
 }
 
 @media (width >= 550px) {

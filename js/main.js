@@ -197,8 +197,11 @@ $spellsListCardsDiv.addEventListener('click', async (event) => {
       $spellDetailsLevelSchool.textContent += ' ';
     }
     $spellDetailsLevelSchool.textContent += spellDetails.school.name;
+    // CAST TIME
     $spellDetailsCastTime.textContent = spellDetails.casting_time;
+    // RANGE
     $spellDetailsRange.textContent = spellDetails.range;
+    // COMPONENTS
     if (spellDetails.components.length === 1) {
       $spellDetailsComponents.textContent = spellDetails.components[0];
     } else {
@@ -214,24 +217,29 @@ $spellsListCardsDiv.addEventListener('click', async (event) => {
         }
       }
     }
+    // DURATION
     $spellDetailsDuration.textContent = spellDetails.duration;
+    // CLEAR DESCRIPTIONS
     while ($spellDetailsDescriptionDiv.childNodes.length > 0) {
       if (!$spellDetailsDescriptionDiv.firstElementChild) break;
       $spellDetailsDescriptionDiv.removeChild(
         $spellDetailsDescriptionDiv.firstElementChild,
       );
     }
+    // ADD DESCRIPTIONS
     for (let i = 0; i < spellDetails.desc.length; i++) {
       const $descPar = document.createElement('div');
       $descPar.textContent = spellDetails.desc[i];
       $spellDetailsDescriptionDiv.appendChild($descPar);
     }
+    // CLEAR HIGHER LEVELS
     while ($spellDetailsHigherLevelDiv.childNodes.length > 0) {
       if (!$spellDetailsHigherLevelDiv.firstElementChild) break;
       $spellDetailsHigherLevelDiv.removeChild(
         $spellDetailsHigherLevelDiv.firstElementChild,
       );
     }
+    // ADD HIGHER LEVELS
     if (spellDetails.higher_level.length > 0) {
       const $labelSpan = document.createElement('span');
       $labelSpan.textContent = 'At Higher Levels: ';
@@ -241,6 +249,7 @@ $spellsListCardsDiv.addEventListener('click', async (event) => {
       $spellDetailsHigherLevelDiv.appendChild($labelSpan);
       $spellDetailsHigherLevelDiv.appendChild($textSpan);
     }
+    // CLASSES
     if (spellDetails.classes.length === 1) {
       $spellDetailsClasses.textContent = spellDetails.classes[0].name;
     } else {
@@ -256,6 +265,7 @@ $spellsListCardsDiv.addEventListener('click', async (event) => {
         }
       }
     }
+    // SUBCLASSES
     if (spellDetails.subclasses.length === 1) {
       $spellDetailsSubclasses.textContent = generateFullSubclassName(
         spellDetails.subclasses[0].name,
