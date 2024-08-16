@@ -76,7 +76,7 @@ select {
   background-color: #fff9eb;
   border-radius: 5px;
   border: 1px solid #f5e8cc;
-  box-shadow: 2px 4px 4px;
+  box-shadow: 2px 4px 4px #9a9a9a;
   width: 150px;
   height: 225px;
   margin-bottom: 20px;
