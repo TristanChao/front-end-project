@@ -21,6 +21,8 @@ select {
   max-width: 1000px;
 }
 
+/* NAVBAR */
+
 .header {
   height: 80px;
   background-color: #333;
@@ -30,9 +32,21 @@ select {
 }
 
 #title {
-  margin-left: 15px;
+  margin: 0 0 0 15px;
   color: white;
   font-size: 28px;
+}
+
+#navbar-spells-list-view-anchor {
+  display: none;
+  margin-left: 30px;
+  color: white;
+  font-size: 28px;
+  font-family: 'Playfair Display', 'Times New Roman', Times, serif;
+}
+
+#navbar-spells-list-view-anchor:hover {
+  cursor: pointer;
 }
 
 /* SPELLS LIST VIEW */
@@ -188,6 +202,12 @@ select {
 
 #spell-details-description-div > div {
   margin-bottom: 10px;
+}
+
+@media (width >= 420px) {
+  #navbar-spells-list-view-anchor {
+    display: inline;
+  }
 }
 
 @media (width >= 550px) {

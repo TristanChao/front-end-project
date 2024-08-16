@@ -1,3 +1,32 @@
+// GLOBAL
+
+function swapViews(view: string): void {
+  $spellsListView.className = 'view hidden';
+  $spellDetailsView.className = 'view hidden';
+
+  switch (view) {
+    case 'spells list':
+      $spellsListView.classList.remove('hidden');
+      break;
+    case 'spell details':
+      $spellDetailsView.classList.remove('hidden');
+      break;
+  }
+}
+
+// NAVBAR
+
+const $navbarSpellsListViewAnchor = document.querySelector(
+  '#navbar-spells-list-view-anchor',
+) as HTMLAnchorElement;
+
+if (!$navbarSpellsListViewAnchor)
+  throw new Error('$navbarSpellsListViewAnchor query failed');
+
+$navbarSpellsListViewAnchor.addEventListener('click', () => {
+  swapViews('spells list');
+});
+
 // SPELLS LIST -----------------------------------------------------------------
 
 const $spellsListView = document.querySelector(
@@ -429,7 +458,7 @@ $spellsListCardsDiv.addEventListener('click', async (event: Event) => {
       }
     }
 
-    $spellDetailsView.classList.remove('hidden');
+    swapViews('spell details');
   } catch (err) {
     console.error('Error:', err);
   }
@@ -456,6 +485,5 @@ if (!$spellDetailsBackAnchor)
   throw new Error('$spellDetailsBackAnchor query failed');
 
 $spellDetailsBackAnchor.addEventListener('click', () => {
-  $spellDetailsView.className += ' hidden';
-  $spellsListView.classList.remove('hidden');
+  swapViews('spells list');
 });
