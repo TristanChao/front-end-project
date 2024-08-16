@@ -23,6 +23,20 @@ function randomSpellCircleColor() {
       return 'images/magic-circle-pink.png';
   }
 }
+function levelNumberToString(level) {
+  switch (level) {
+    case 0:
+      return 'Cantrip';
+    case 1:
+      return '1st';
+    case 2:
+      return '2nd';
+    case 3:
+      return '3rd';
+    default:
+      return level.toString() + 'th';
+  }
+}
 let basicSpellData;
 async function getAllSpellData() {
   try {
@@ -43,22 +57,7 @@ function renderCard(spellName, spellLevel, spellUrl) {
   $topDiv.className = 'card-top-div';
   const $levelSpan = document.createElement('span');
   $levelSpan.className = 'card-level-span';
-  switch (spellLevel) {
-    case 0:
-      $levelSpan.textContent = 'Cantrip';
-      break;
-    case 1:
-      $levelSpan.textContent = '1st';
-      break;
-    case 2:
-      $levelSpan.textContent = '2nd';
-      break;
-    case 3:
-      $levelSpan.textContent = '3rd';
-      break;
-    default:
-      $levelSpan.textContent = spellLevel.toString() + 'th';
-  }
+  $levelSpan.textContent = levelNumberToString(spellLevel);
   const $spellCircleDiv = document.createElement('div');
   $spellCircleDiv.className = 'spell-circle-div';
   const $spellCircleImg = document.createElement('img');
@@ -101,15 +100,196 @@ async function renderAllCards() {
   }
 }
 renderAllCards();
-// SPELL DETAILS ---------------------------------------------------------------
+// SPELLS LIST --> SPELL DETAILS ----------------------------------------------
 const $spellDetailsView = document.querySelector('#spell-details-view');
+const $spellDetailsName = document.querySelector('#spell-details-name');
+const $spellDetailsLevelSchool = document.querySelector(
+  '#spell-details-level-school',
+);
+const $spellDetailsCastTime = document.querySelector(
+  '#spell-details-cast-time',
+);
+const $spellDetailsRange = document.querySelector('#spell-details-range');
+const $spellDetailsComponents = document.querySelector(
+  '#spell-details-components',
+);
+const $spellDetailsDuration = document.querySelector('#spell-details-duration');
+const $spellDetailsDescriptionDiv = document.querySelector(
+  '#spell-details-description-div',
+);
+const $spellDetailsHigherLevelDiv = document.querySelector(
+  '#spell-details-higher-levels-div',
+);
+const $spellDetailsClasses = document.querySelector('#spell-details-classes');
+const $spellDetailsSubclasses = document.querySelector(
+  '#spell-details-subclasses',
+);
+if (!$spellDetailsView) throw new Error('$spellDetailsView query failed');
+if (!$spellDetailsName) throw new Error('$spellDetailsName query failed');
+if (!$spellDetailsLevelSchool)
+  throw new Error('$spellDetailsLevelSchool query failed');
+if (!$spellDetailsCastTime)
+  throw new Error('$spellDetailsCastTime query failed');
+if (!$spellDetailsRange) throw new Error('$spellDetailsRange query failed');
+if (!$spellDetailsComponents)
+  throw new Error('$spellDetailsComponents query failed');
+if (!$spellDetailsDuration)
+  throw new Error('$spellDetailsDuration query failed');
+if (!$spellDetailsDescriptionDiv)
+  throw new Error('$spellDetailsDescriptionDiv query failed');
+if (!$spellDetailsHigherLevelDiv)
+  throw new Error('$spellDetailsHigherLevelDiv query failed');
+if (!$spellDetailsClasses) throw new Error('$spellDetailsClasses query failed');
+if (!$spellDetailsSubclasses)
+  throw new Error('$spellDetailsSubclasses query failed');
+function generateFullSubclassName(subclass) {
+  switch (subclass) {
+    case 'Berserker':
+      return 'Barbarian Path of the Berserker';
+    case 'Champion':
+      return 'Fighter Champion Archetype';
+    case 'Devotion':
+      return 'Paladin Oath of Devotion';
+    case 'Draconic':
+      return 'Sorcerer Draconic Bloodline';
+    case 'Evocation':
+      return 'Wizard School of Evocation';
+    case 'Fiend':
+      return 'Warlock Fiend Patron';
+    case 'Hunter':
+      return 'Ranger Hunter Archetype';
+    case 'Land':
+      return 'Druid Circle of the Land';
+    case 'Life':
+      return 'Cleric Life Domain';
+    case 'Lore':
+      return 'Bard College of Lore';
+    case 'Open Hand':
+      return 'Monk Way of the Open Hand';
+    case 'Thief':
+      return 'Rogue Thief Archetype';
+    default:
+      return '';
+  }
+}
+let spellDetails;
+$spellsListCardsDiv.addEventListener('click', async (event) => {
+  try {
+    const $target = event.target;
+    if (!$target.closest('div.card')) {
+      console.log('not a card');
+      return;
+    }
+    const $targetCard = $target.closest('div.card');
+    const cardSpellUrl = $targetCard.getAttribute('data-url');
+    $spellsListView.className += ' hidden';
+    if (!cardSpellUrl) throw new Error('cardSpellUrl does not exist');
+    await getSpellDetails(cardSpellUrl);
+    $spellDetailsName.textContent = spellDetails.name;
+    $spellDetailsLevelSchool.textContent =
+      levelNumberToString(spellDetails.level) +
+      ' Level ' +
+      spellDetails.school.name;
+    $spellDetailsCastTime.textContent = spellDetails.casting_time;
+    $spellDetailsRange.textContent = spellDetails.range;
+    if (spellDetails.components.length === 1) {
+      $spellDetailsComponents.textContent = spellDetails.components[0];
+    } else {
+      for (let i = 0; i < spellDetails.components.length; i++) {
+        if (i === 0) {
+          $spellDetailsComponents.textContent =
+            spellDetails.components[i] + ', ';
+        } else if (i < spellDetails.components.length - 1) {
+          $spellDetailsComponents.textContent +=
+            spellDetails.components[i] + ', ';
+        } else {
+          $spellDetailsComponents.textContent += spellDetails.components[i];
+        }
+      }
+    }
+    $spellDetailsDuration.textContent = spellDetails.duration;
+    while ($spellDetailsDescriptionDiv.childNodes.length > 0) {
+      if (!$spellDetailsDescriptionDiv.firstElementChild) break;
+      $spellDetailsDescriptionDiv.removeChild(
+        $spellDetailsDescriptionDiv.firstElementChild,
+      );
+    }
+    for (let i = 0; i < spellDetails.desc.length; i++) {
+      const $descPar = document.createElement('div');
+      $descPar.textContent = spellDetails.desc[i];
+      $spellDetailsDescriptionDiv.appendChild($descPar);
+    }
+    while ($spellDetailsHigherLevelDiv.childNodes.length > 0) {
+      if (!$spellDetailsHigherLevelDiv.firstElementChild) break;
+      $spellDetailsHigherLevelDiv.removeChild(
+        $spellDetailsHigherLevelDiv.firstElementChild,
+      );
+    }
+    if (spellDetails.higher_level.length > 0) {
+      const $labelSpan = document.createElement('span');
+      $labelSpan.textContent = 'At Higher Levels: ';
+      $labelSpan.setAttribute('style', 'font-weight: 700');
+      const $textSpan = document.createElement('span');
+      $textSpan.textContent = spellDetails.higher_level[0];
+      $spellDetailsHigherLevelDiv.appendChild($labelSpan);
+      $spellDetailsHigherLevelDiv.appendChild($textSpan);
+    }
+    if (spellDetails.classes.length === 1) {
+      $spellDetailsClasses.textContent = spellDetails.classes[0].name;
+    } else {
+      for (let i = 0; i < spellDetails.classes.length; i++) {
+        if (i === 0) {
+          $spellDetailsClasses.textContent =
+            spellDetails.classes[i].name + ', ';
+        } else if (i < spellDetails.classes.length - 1) {
+          $spellDetailsClasses.textContent +=
+            spellDetails.classes[i].name + ', ';
+        } else {
+          $spellDetailsClasses.textContent += spellDetails.classes[i].name;
+        }
+      }
+    }
+    if (spellDetails.subclasses.length === 1) {
+      $spellDetailsSubclasses.textContent = generateFullSubclassName(
+        spellDetails.subclasses[0].name,
+      );
+    } else {
+      for (let i = 0; i < spellDetails.subclasses.length; i++) {
+        if (i === 0) {
+          $spellDetailsSubclasses.textContent =
+            generateFullSubclassName(spellDetails.subclasses[i].name) + ', ';
+        } else if (i < spellDetails.subclasses.length - 1) {
+          $spellDetailsSubclasses.textContent +=
+            generateFullSubclassName(spellDetails.subclasses[i].name) + ', ';
+        } else {
+          $spellDetailsSubclasses.textContent += generateFullSubclassName(
+            spellDetails.subclasses[i].name,
+          );
+        }
+      }
+    }
+    $spellDetailsView.classList.remove('hidden');
+  } catch (err) {
+    console.error('Error:', err);
+  }
+});
+async function getSpellDetails(spellUrl) {
+  try {
+    const response = await fetch(`https://www.dnd5eapi.co${spellUrl}`);
+    if (!response.ok)
+      throw new Error(`Fetch error. Status: ${response.status}`);
+    spellDetails = await response.json();
+  } catch (err) {
+    console.error('Error:', err);
+  }
+}
+// SPELL DETAILS --> SPELLS LIST -----------------------------------------------
 const $spellDetailsBackAnchor = document.querySelector(
   '#spell-details-back-anchor',
 );
-if (!$spellDetailsView) throw new Error('$spellDetailsView query failed');
 if (!$spellDetailsBackAnchor)
   throw new Error('$spellDetailsBackAnchor query failed');
 $spellDetailsBackAnchor.addEventListener('click', () => {
-  $spellDetailsView.className += 'hidden';
+  $spellDetailsView.className += ' hidden';
   $spellsListView.classList.remove('hidden');
 });
