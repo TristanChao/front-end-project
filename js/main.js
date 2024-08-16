@@ -176,11 +176,10 @@ let spellDetails;
 $spellsListCardsDiv.addEventListener('click', async (event) => {
   try {
     const $target = event.target;
-    if (!$target.closest('div.card')) {
-      console.log('not a card');
+    const $targetCard = $target.closest('div.card');
+    if (!$targetCard) {
       return;
     }
-    const $targetCard = $target.closest('div.card');
     const cardSpellUrl = $targetCard.getAttribute('data-url');
     $spellsListView.className += ' hidden';
     if (!cardSpellUrl) throw new Error('cardSpellUrl does not exist');

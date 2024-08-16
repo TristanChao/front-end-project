@@ -247,12 +247,12 @@ $spellsListCardsDiv.addEventListener('click', async (event: Event) => {
   try {
     const $target = event.target as HTMLElement;
 
-    if (!$target.closest('div.card')) {
-      console.log('not a card');
+    const $targetCard = $target.closest('div.card') as HTMLDivElement;
+
+    if (!$targetCard) {
       return;
     }
 
-    const $targetCard = $target.closest('div.card') as HTMLDivElement;
     const cardSpellUrl = $targetCard.getAttribute('data-url');
 
     $spellsListView.className += ' hidden';
