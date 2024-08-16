@@ -6,6 +6,12 @@ h1 {
   font-family: 'Playfair Display', 'Times New Roman', Times, serif;
 }
 
+select {
+  border-radius: 5px;
+  background-color: #f1f1f1;
+  border: 1px solid #c7c7c7;
+}
+
 .view {
   margin-left: auto;
   margin-right: auto;
@@ -32,6 +38,20 @@ h1 {
 
 #spells-list-view {
   width: 350px;
+}
+
+#spells-list-sort-search-filter-div {
+  margin-bottom: 20px;
+}
+
+#spells-list-sort-label {
+  font-size: 24px;
+}
+
+#spells-list-sort-dropdown {
+  font-size: 24px;
+  padding: 5px;
+  font-family: Quattrocento, 'Times New Roman', Times, serif;
 }
 
 #spells-list-cards-div {
