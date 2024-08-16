@@ -44,6 +44,12 @@ h1 {
   width: 150px;
   height: 225px;
   margin-bottom: 20px;
+  transition: transform 0.25s;
+}
+
+.card:hover {
+  cursor: pointer;
+  transform: scale(1.05, 1.05);
 }
 
 .card-top-div {
