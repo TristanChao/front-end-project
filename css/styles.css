@@ -10,6 +10,7 @@ select {
   border-radius: 5px;
   background-color: #f1f1f1;
   border: 1px solid #c7c7c7;
+  font-family: Quattrocento, 'Times New Roman', Times, serif;
 }
 
 .view {
@@ -51,7 +52,6 @@ select {
 #spells-list-sort-dropdown {
   font-size: 24px;
   padding: 5px;
-  font-family: Quattrocento, 'Times New Roman', Times, serif;
 }
 
 #spells-list-cards-div {

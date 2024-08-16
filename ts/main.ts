@@ -6,9 +6,14 @@ const $spellsListView = document.querySelector(
 const $spellsListCardsDiv = document.querySelector(
   '#spells-list-cards-div',
 ) as HTMLDivElement;
+const $spellsListSortDropdown = document.querySelector(
+  '#spells-list-sort-dropdown',
+) as HTMLSelectElement;
 
 if (!$spellsListView) throw new Error('$spellsListView query failed');
 if (!$spellsListCardsDiv) throw new Error('$spellsListCardsDiv query failed');
+if (!$spellsListSortDropdown)
+  throw new Error('$spellsListSortDropdown query failed');
 
 function randomSpellCircleColor(): string {
   const randInt = Math.floor(Math.random() * 7);
@@ -127,9 +132,15 @@ function renderCard(
   return $card;
 }
 
-async function renderAllCards(): Promise<void> {
+async function renderAllCardsInitial(): Promise<void> {
   await getAllSpellData();
 
+  sortCardsName();
+}
+
+renderAllCardsInitial();
+
+function sortCardsName(): void {
   for (let i = 0; i < basicSpellData.count; i++) {
     const spellInfo = basicSpellData.results[i];
     const $card = renderCard(spellInfo.name, spellInfo.level, spellInfo.url);
@@ -137,7 +148,37 @@ async function renderAllCards(): Promise<void> {
   }
 }
 
-renderAllCards();
+function sortCardsLevel(): void {
+  const spellsByLevel: GeneralSpell[][] = [
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+  ];
+  for (let i = 0; i < basicSpellData.count; i++) {
+    const spellResult = basicSpellData.results[i];
+    const spellLevel = spellResult.level;
+    spellsByLevel[spellLevel].push(spellResult);
+  }
+  for (let i = 0; i < spellsByLevel.length; i++) {
+    spellsByLevel[i].forEach((element) => {
+      const $card = renderCard(element.name, element.level, element.url);
+      $spellsListCardsDiv.appendChild($card);
+    });
+  }
+}
+
+$spellsListSortDropdown.addEventListener('input', () => {
+  if ($spellsListSortDropdown.value === 'level') {
+    sortCardsLevel();
+  }
+});
 
 // SPELLS LIST --> SPELL DETAILS ----------------------------------------------
 

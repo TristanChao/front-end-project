@@ -2,8 +2,13 @@
 // SPELLS LIST -----------------------------------------------------------------
 const $spellsListView = document.querySelector('#spells-list-view');
 const $spellsListCardsDiv = document.querySelector('#spells-list-cards-div');
+const $spellsListSortDropdown = document.querySelector(
+  '#spells-list-sort-dropdown',
+);
 if (!$spellsListView) throw new Error('$spellsListView query failed');
 if (!$spellsListCardsDiv) throw new Error('$spellsListCardsDiv query failed');
+if (!$spellsListSortDropdown)
+  throw new Error('$spellsListSortDropdown query failed');
 function randomSpellCircleColor() {
   const randInt = Math.floor(Math.random() * 7);
   switch (randInt) {
@@ -91,15 +96,37 @@ function renderCard(spellName, spellLevel, spellUrl) {
   $nameDiv.appendChild($nameSpan);
   return $card;
 }
-async function renderAllCards() {
+async function renderAllCardsInitial() {
   await getAllSpellData();
+  sortCardsName();
+}
+renderAllCardsInitial();
+function sortCardsName() {
   for (let i = 0; i < basicSpellData.count; i++) {
     const spellInfo = basicSpellData.results[i];
     const $card = renderCard(spellInfo.name, spellInfo.level, spellInfo.url);
     $spellsListCardsDiv.appendChild($card);
   }
 }
-renderAllCards();
+function sortCardsLevel() {
+  const spellsByLevel = [[], [], [], [], [], [], [], [], [], []];
+  for (let i = 0; i < basicSpellData.count; i++) {
+    const spellResult = basicSpellData.results[i];
+    const spellLevel = spellResult.level;
+    spellsByLevel[spellLevel].push(spellResult);
+  }
+  for (let i = 0; i < spellsByLevel.length; i++) {
+    spellsByLevel[i].forEach((element) => {
+      const $card = renderCard(element.name, element.level, element.url);
+      $spellsListCardsDiv.appendChild($card);
+    });
+  }
+}
+$spellsListSortDropdown.addEventListener('input', () => {
+  if ($spellsListSortDropdown.value === 'level') {
+    sortCardsLevel();
+  }
+});
 // SPELLS LIST --> SPELL DETAILS ----------------------------------------------
 const $spellDetailsView = document.querySelector('#spell-details-view');
 const $spellDetailsName = document.querySelector('#spell-details-name');
