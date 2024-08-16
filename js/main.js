@@ -43,12 +43,20 @@ function levelNumberToString(level) {
   }
 }
 let basicSpellData;
+const spellsByLevel = [[], [], [], [], [], [], [], [], [], []];
 async function getAllSpellData() {
   try {
     const response = await fetch('https://www.dnd5eapi.co/api/spells');
     if (!response.ok)
       throw new Error(`Fetch error. Status: ${response.status}`);
+    // get basicSpellData value
     basicSpellData = await response.json();
+    // fill spellsByLevel arrays
+    for (let i = 0; i < basicSpellData.count; i++) {
+      const spellResult = basicSpellData.results[i];
+      const spellLevel = spellResult.level;
+      spellsByLevel[spellLevel].push(spellResult);
+    }
   } catch (err) {
     console.error('Error:', err);
   }
@@ -109,12 +117,6 @@ function sortCardsName() {
   }
 }
 function sortCardsLevel() {
-  const spellsByLevel = [[], [], [], [], [], [], [], [], [], []];
-  for (let i = 0; i < basicSpellData.count; i++) {
-    const spellResult = basicSpellData.results[i];
-    const spellLevel = spellResult.level;
-    spellsByLevel[spellLevel].push(spellResult);
-  }
   for (let i = 0; i < spellsByLevel.length; i++) {
     spellsByLevel[i].forEach((element) => {
       const $card = renderCard(element.name, element.level, element.url);
@@ -123,8 +125,16 @@ function sortCardsLevel() {
   }
 }
 $spellsListSortDropdown.addEventListener('input', () => {
+  // clear cards
+  while ($spellsListCardsDiv.childNodes.length > 0) {
+    if (!$spellsListCardsDiv.firstElementChild) break;
+    $spellsListCardsDiv.removeChild($spellsListCardsDiv.firstElementChild);
+  }
+  // re-render cards based on sort value
   if ($spellsListSortDropdown.value === 'level') {
     sortCardsLevel();
+  } else {
+    sortCardsName();
   }
 });
 // SPELLS LIST --> SPELL DETAILS ----------------------------------------------
