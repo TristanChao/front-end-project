@@ -261,11 +261,19 @@ $spellsListCardsDiv.addEventListener('click', async (event: Event) => {
 
     await getSpellDetails(cardSpellUrl);
 
+    // NAME
     $spellDetailsName.textContent = spellDetails.name;
-    $spellDetailsLevelSchool.textContent =
-      levelNumberToString(spellDetails.level) +
-      ' Level ' +
-      spellDetails.school.name;
+
+    // LEVEL, SCHOOL
+    $spellDetailsLevelSchool.textContent = levelNumberToString(
+      spellDetails.level,
+    );
+    if (spellDetails.level !== 0) {
+      $spellDetailsLevelSchool.textContent += ' Level ';
+    } else {
+      $spellDetailsLevelSchool.textContent += ' ';
+    }
+    $spellDetailsLevelSchool.textContent += spellDetails.school.name;
 
     $spellDetailsCastTime.textContent = spellDetails.casting_time;
     $spellDetailsRange.textContent = spellDetails.range;

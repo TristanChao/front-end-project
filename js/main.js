@@ -185,11 +185,18 @@ $spellsListCardsDiv.addEventListener('click', async (event) => {
     $spellsListView.className += ' hidden';
     if (!cardSpellUrl) throw new Error('cardSpellUrl does not exist');
     await getSpellDetails(cardSpellUrl);
+    // NAME
     $spellDetailsName.textContent = spellDetails.name;
-    $spellDetailsLevelSchool.textContent =
-      levelNumberToString(spellDetails.level) +
-      ' Level ' +
-      spellDetails.school.name;
+    // LEVEL, SCHOOL
+    $spellDetailsLevelSchool.textContent = levelNumberToString(
+      spellDetails.level,
+    );
+    if (spellDetails.level !== 0) {
+      $spellDetailsLevelSchool.textContent += ' Level ';
+    } else {
+      $spellDetailsLevelSchool.textContent += ' ';
+    }
+    $spellDetailsLevelSchool.textContent += spellDetails.school.name;
     $spellDetailsCastTime.textContent = spellDetails.casting_time;
     $spellDetailsRange.textContent = spellDetails.range;
     if (spellDetails.components.length === 1) {
