@@ -110,6 +110,7 @@ h1 {
   margin-left: 30px;
   margin-right: 30px;
   margin-top: 40px;
+  margin-bottom: 40px;
   background-image: linear-gradient(#fff9eb, #faf1dd 70%, #f5e8cc 90%);
 }
 
@@ -162,6 +163,10 @@ h1 {
 
 .spell-details-group {
   margin-bottom: 20px;
+}
+
+#spell-details-description-div > div {
+  margin-bottom: 10px;
 }
 
 @media (width >= 550px) {
