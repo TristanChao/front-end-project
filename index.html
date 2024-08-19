@@ -44,6 +44,38 @@
           </form>
           <button id="spells-list-filter-btn">Filter</button>
         </div>
+        <dialog id="spells-list-filter-dialog">
+          <form id="spells-list-filter-form">
+            <label for="spells-list-filter-name-input">Name:</label>
+            <input id="spells-list-filter-name-input" />
+            <label for="spells-list-filter-level-select">Level:</label>
+            <select id="spells-list-filter-level-select">
+              <option value="-1">--</option>
+              <option value="0">Cantrip</option>
+              <option value="1">1st Level</option>
+              <option value="2">2nd Level</option>
+              <option value="3">3rd Level</option>
+              <option value="4">4th Level</option>
+              <option value="5">5th Level</option>
+              <option value="6">6th Level</option>
+              <option value="7">7th Level</option>
+              <option value="8">8th Level</option>
+              <option value="9">9th Level</option>
+            </select>
+            <label for="spells-list-filter-school-select">School:</label>
+            <select id="spells-list-filter-school-select">
+              <option value="">--</option>
+              <option value="abjuration">Abjuration</option>
+              <option value="conjuration">Conjuration</option>
+              <option value="divination">Divination</option>
+              <option value="enchantment">Enchantment</option>
+              <option value="evocation">Evocation</option>
+              <option value="illusion">Illusion</option>
+              <option value="necromancy">Necromancy</option>
+              <option value="transmutation">Transmutation</option>
+            </select>
+          </form>
+        </dialog>
         <div id="spells-list-cards-div" class="row"></div>
       </div>
 
