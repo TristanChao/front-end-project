@@ -258,6 +258,7 @@ $spellsListSearchSortForm.addEventListener('submit', (event) => {
   if ($spellsListSearchInput.value) {
     cardSort.filter.name = $spellsListSearchInput.value;
     cardSort.filter.apply = true;
+    $spellsListFilterNameInput.value = cardSort.filter.name;
     filterSpellsList();
     switchCardsList('filtered cards');
   } else {
@@ -315,29 +316,41 @@ async function filterSpellsList() {
     console.error('Error:', err);
   }
 }
+// resets the filter form when the 'reset filters' button is clicked,
+// then switches to the all cards view
 $clearFilterBtn.addEventListener('click', () => {
   $spellsListFilterForm.reset();
+  switchCardsList('all cards');
 });
+// resets the filter form to previous state when the 'cancel' button is clicked
 $cancelFilterBtn.addEventListener('click', () => {
   $spellsListFilterDialog.close();
   $spellsListFilterNameInput.value = cardSort.filter.name;
   $spellsListFilterLevelSelect.value = cardSort.filter.level.toString();
   $spellsListFilterSchoolSelect.value = cardSort.filter.school;
 });
+// event listener for filter spells form
 $spellsListFilterForm.addEventListener('submit', async (event) => {
   try {
     event.preventDefault();
+    // store form values in the cardSort object
     cardSort.filter.name = $spellsListFilterNameInput.value;
     cardSort.filter.level = Number($spellsListFilterLevelSelect.value);
     cardSort.filter.school = $spellsListFilterSchoolSelect.value;
+    $spellsListSearchInput.value = cardSort.filter.name;
     $spellsListFilterDialog.close();
+    // switches to the all spells list if the filter form is empty,
+    // then returns from the function
     if (
       !cardSort.filter.name &&
       cardSort.filter.level < 0 &&
       !cardSort.filter.school
     ) {
+      switchCardsList('all cards');
       return;
     }
+    // if the filter form is not empty, it will filter the spells and
+    // switch to the filtered list
     await filterSpellsList();
     switchCardsList('filtered cards');
   } catch (err) {
