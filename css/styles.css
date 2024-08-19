@@ -22,8 +22,6 @@ button {
 .view {
   margin-left: auto;
   margin-right: auto;
-  padding-left: 15px;
-  padding-right: 15px;
   max-width: 1040px;
 }
 
@@ -58,7 +56,8 @@ button {
 /* SPELLS LIST VIEW */
 
 #spells-list-view {
-  width: 370px;
+  width: 360px;
+  padding-left: 20px;
 }
 
 #spells-list-sort-search-filter-div {
@@ -103,6 +102,28 @@ button {
   background-color: #333;
   color: white;
   padding: 5px 10px;
+}
+
+#spells-list-filter-dialog {
+  min-width: 330px;
+  width: 330px;
+}
+
+#spells-list-filter-dialog * {
+  font-size: 20px;
+}
+
+#spells-list-filter-dialog form {
+  margin-top: 10px;
+}
+
+#spells-list-filter-dialog div {
+  margin-bottom: 15px;
+}
+
+#spells-list-filter-dialog input,
+#spells-list-filter-dialog select {
+  width: 100%;
 }
 
 #spells-list-cards-div {
@@ -170,7 +191,7 @@ button {
 /* SPELL DETAILS VIEW */
 
 #spell-details-view {
-  padding-top: 20px;
+  padding: 20px 15px;
   min-width: 350px;
 }
 
@@ -251,8 +272,6 @@ button {
 @media (width >= 590px) {
   #spells-list-view {
     width: 530px;
-    padding-right: 0;
-    padding-left: 20px;
   }
 
   #spells-list-search-sort-form {

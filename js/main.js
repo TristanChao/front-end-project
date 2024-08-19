@@ -12,7 +12,8 @@ function swapViews(view) {
       break;
   }
 }
-// NAVBAR
+// NAVBAR ---------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 const $navbarSpellsListViewAnchor = document.querySelector(
   '#navbar-spells-list-view-anchor',
 );
@@ -21,7 +22,8 @@ if (!$navbarSpellsListViewAnchor)
 $navbarSpellsListViewAnchor.addEventListener('click', () => {
   swapViews('spells list');
 });
-// SPELLS LIST -----------------------------------------------------------------
+// SPELLS LIST ----------------------------------------------------------------
+// ----------------------------------------------------------------------------
 const $spellsListView = document.querySelector('#spells-list-view');
 const $spellsListCardsDiv = document.querySelector('#spells-list-cards-div');
 const $spellsListSortDropdown = document.querySelector(
@@ -40,6 +42,20 @@ const $spellsListSearchInput = document.querySelector(
 const $spellsListFilteredCardsDiv = document.querySelector(
   '#spells-list-filtered-cards-div',
 );
+const $cancelFilterBtn = document.querySelector('#cancel-filter-btn');
+const $clearFilterBtn = document.querySelector('#clear-filter-btn');
+const $spellsListFilterForm = document.querySelector(
+  '#spells-list-filter-form',
+);
+const $spellsListFilterNameInput = document.querySelector(
+  '#spells-list-filter-name-input',
+);
+const $spellsListFilterLevelSelect = document.querySelector(
+  '#spells-list-filter-level-select',
+);
+const $spellsListFilterSchoolSelect = document.querySelector(
+  '#spells-list-filter-school-select',
+);
 if (!$spellsListView) throw new Error('$spellsListView query failed');
 if (!$spellsListCardsDiv) throw new Error('$spellsListCardsDiv query failed');
 if (!$spellsListSortDropdown)
@@ -53,6 +69,17 @@ if (!$spellsListSearchInput)
   throw new Error('$spellsListSearchInput query failed');
 if (!$spellsListFilteredCardsDiv)
   throw new Error('$spellsListFilteredCardsDiv query failed');
+if (!$cancelFilterBtn) throw new Error('$cancelFilterBtn query failed');
+if (!$clearFilterBtn) throw new Error('$clearFilterBtn query failed');
+if (!$spellsListFilterForm)
+  throw new Error('$spellsListFilterForm query failed');
+if (!$spellsListFilterNameInput)
+  throw new Error('$spellsListFilterNameInput query failed');
+if (!$spellsListFilterLevelSelect)
+  throw new Error('$spellsListFilterLevelSelect query failed');
+if (!$spellsListFilterSchoolSelect)
+  throw new Error('$spellsListFilterSchoolSelect query failed');
+// generates random spell circle url
 function randomSpellCircleColor() {
   const randInt = Math.floor(Math.random() * 7);
   switch (randInt) {
@@ -72,6 +99,7 @@ function randomSpellCircleColor() {
       return 'images/magic-circle-pink.png';
   }
 }
+// utility function to change level number into a user-friendly string
 function levelNumberToString(level) {
   switch (level) {
     case 0:
@@ -86,23 +114,36 @@ function levelNumberToString(level) {
       return level.toString() + 'th';
   }
 }
-function clearArray(array) {
-  for (let i = array.length - 1; i >= 0; i--) {
-    delete array[i];
+function switchCardsList(list) {
+  if (list === 'all cards') {
+    if (!$spellsListFilteredCardsDiv.className.includes('hidden')) {
+      $spellsListFilteredCardsDiv.className += ' hidden';
+    }
+    if ($spellsListCardsDiv.className.includes('hidden')) {
+      $spellsListCardsDiv.classList.remove('hidden');
+    }
+  } else if (list === 'filtered cards') {
+    if (!$spellsListCardsDiv.className.includes('hidden')) {
+      $spellsListCardsDiv.className += ' hidden';
+    }
+    if ($spellsListFilteredCardsDiv.className.includes('hidden')) {
+      $spellsListFilteredCardsDiv.classList.remove('hidden');
+    }
   }
 }
 let spellData;
 const cardsArray = [];
-const filteredArray = [];
+let filteredArray = [];
 const cardSort = {
   sort: 'name',
   filter: {
     apply: false,
     name: '',
     level: -1,
-    school: 0,
+    school: '',
   },
 };
+// function to query the api for the general list of all spells
 async function getAllSpellData() {
   try {
     const response = await fetch('https://www.dnd5eapi.co/api/spells');
@@ -114,6 +155,7 @@ async function getAllSpellData() {
     console.error('Error:', err);
   }
 }
+// function that will render a spell card
 function renderCard(spellName, spellLevel, spellUrl) {
   if (!$spellsListCardsDiv) throw new Error('$spellsListCardsDiv query failed');
   const $card = document.createElement('div');
@@ -159,6 +201,8 @@ function renderCard(spellName, spellLevel, spellUrl) {
   $nameDiv.appendChild($nameSpan);
   return $card;
 }
+// a function that will run once at the beginning to get all the spell data,
+// render all the cards to an array, and append that array to the DOM
 async function renderAllCardsInitial() {
   await getAllSpellData();
   for (let i = 0; i < spellData.results.length; i++) {
@@ -168,16 +212,20 @@ async function renderAllCardsInitial() {
   sortCards('name');
 }
 renderAllCardsInitial();
+// an array.sort callback function to sort cards by their data-name attribute
 function nameSort(a, b) {
   const firstName = a.getAttribute('data-name');
   const secondName = b.getAttribute('data-name');
   return firstName.localeCompare(secondName);
 }
+// an array.sort callback function to sort cards by their data-level attribute
 function numberSort(a, b) {
   return (
     Number(a.getAttribute('data-level')) - Number(b.getAttribute('data-level'))
   );
 }
+// a function that will sort the cards in both the all cards array and the
+// filtered cards array
 function sortCards(criteria) {
   if (criteria === 'name') {
     cardsArray.sort(nameSort);
@@ -193,6 +241,7 @@ function sortCards(criteria) {
     $spellsListFilteredCardsDiv.appendChild(element);
   });
 }
+// event listener for when the sort order is changed
 $spellsListSortDropdown.addEventListener('input', () => {
   cardSort.sort = $spellsListSortDropdown.value;
   // clear cards
@@ -203,25 +252,30 @@ $spellsListSortDropdown.addEventListener('input', () => {
   // re-render cards based on sort value
   sortCards(cardSort.sort);
 });
+// event listener for when the search bar is submitted
 $spellsListSearchSortForm.addEventListener('submit', (event) => {
   event.preventDefault();
   if ($spellsListSearchInput.value) {
     cardSort.filter.name = $spellsListSearchInput.value;
     cardSort.filter.apply = true;
     filterSpellsList();
-    $spellsListCardsDiv.className += ' hidden';
-    $spellsListFilteredCardsDiv.classList.remove('hidden');
+    switchCardsList('filtered cards');
   } else {
     sortCards(cardSort.sort);
-    $spellsListFilteredCardsDiv.className += ' hidden';
-    $spellsListCardsDiv.classList.remove('hidden');
+    switchCardsList('all cards');
   }
 });
+// event listener for when the 'filter' button is clicked
 $spellsListFilterBtn.addEventListener('click', () => {
   $spellsListFilterDialog.showModal();
 });
+/* function to query the api for a filter endpoint, and render those cards to
+ the filtered cards array */
+// the filtered cards div is cleared before the new cards are added in
 async function filterSpellsList() {
   try {
+    // creates an endpoint url for the fetch command
+    // based on the values in the cardSort object
     let apiFilterUrl = '?';
     if (cardSort.filter.name) {
       const urlName = cardSort.filter.name.replace(' ', '%20');
@@ -238,19 +292,22 @@ async function filterSpellsList() {
     );
     if (!response.ok) throw new Error(`Fetch error status: ${response.status}`);
     const filteredSpellData = await response.json();
-    clearArray(filteredArray);
+    filteredArray = [];
+    // clears the filtered cards div
     while ($spellsListFilteredCardsDiv.childNodes.length > 0) {
       if (!$spellsListFilteredCardsDiv.firstChild) continue;
       $spellsListFilteredCardsDiv.removeChild(
         $spellsListFilteredCardsDiv.firstChild,
       );
     }
+    // renders cards into the filtered cards array
     for (let i = 0; i < filteredSpellData.count; i++) {
       const spellInfo = filteredSpellData.results[i];
       filteredArray.push(
         renderCard(spellInfo.name, spellInfo.level, spellInfo.url),
       );
     }
+    // appends cards into the filtered cards div
     filteredArray.forEach((element) => {
       $spellsListFilteredCardsDiv.appendChild(element);
     });
@@ -258,6 +315,35 @@ async function filterSpellsList() {
     console.error('Error:', err);
   }
 }
+$clearFilterBtn.addEventListener('click', () => {
+  $spellsListFilterForm.reset();
+});
+$cancelFilterBtn.addEventListener('click', () => {
+  $spellsListFilterDialog.close();
+  $spellsListFilterNameInput.value = cardSort.filter.name;
+  $spellsListFilterLevelSelect.value = cardSort.filter.level.toString();
+  $spellsListFilterSchoolSelect.value = cardSort.filter.school;
+});
+$spellsListFilterForm.addEventListener('submit', async (event) => {
+  try {
+    event.preventDefault();
+    cardSort.filter.name = $spellsListFilterNameInput.value;
+    cardSort.filter.level = Number($spellsListFilterLevelSelect.value);
+    cardSort.filter.school = $spellsListFilterSchoolSelect.value;
+    $spellsListFilterDialog.close();
+    if (
+      !cardSort.filter.name &&
+      cardSort.filter.level < 0 &&
+      !cardSort.filter.school
+    ) {
+      return;
+    }
+    await filterSpellsList();
+    switchCardsList('filtered cards');
+  } catch (err) {
+    console.error('Error:', err);
+  }
+});
 // SPELLS LIST --> SPELL DETAILS ----------------------------------------------
 // ----------------------------------------------------------------------------
 const $spellDetailsView = document.querySelector('#spell-details-view');
