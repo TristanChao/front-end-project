@@ -38,11 +38,35 @@ const $spellsListCardsDiv = document.querySelector(
 const $spellsListSortDropdown = document.querySelector(
   '#spells-list-sort-dropdown',
 ) as HTMLSelectElement;
+const $spellsListFilterBtn = document.querySelector(
+  '#spells-list-filter-btn',
+) as HTMLButtonElement;
+const $spellsListFilterDialog = document.querySelector(
+  '#spells-list-filter-dialog',
+) as HTMLDialogElement;
+const $spellsListSearchSortForm = document.querySelector(
+  '#spells-list-search-sort-form',
+) as HTMLFormElement;
+const $spellsListSearchInput = document.querySelector(
+  '#spells-list-search-input',
+) as HTMLInputElement;
+const $spellsListFilteredCardsDiv = document.querySelector(
+  '#spells-list-filtered-cards-div',
+) as HTMLDivElement;
 
 if (!$spellsListView) throw new Error('$spellsListView query failed');
 if (!$spellsListCardsDiv) throw new Error('$spellsListCardsDiv query failed');
 if (!$spellsListSortDropdown)
   throw new Error('$spellsListSortDropdown query failed');
+if (!$spellsListFilterBtn) throw new Error('$spellsListFilterBtn query failed');
+if (!$spellsListFilterDialog)
+  throw new Error('$spellsListFilterDialog query failed');
+if (!$spellsListSearchSortForm)
+  throw new Error('$spellsListSearchSortForm query failed');
+if (!$spellsListSearchInput)
+  throw new Error('$spellsListSearchInput query failed');
+if (!$spellsListFilteredCardsDiv)
+  throw new Error('$spellsListFilteredCardsDiv query failed');
 
 function randomSpellCircleColor(): string {
   const randInt = Math.floor(Math.random() * 7);
@@ -79,6 +103,12 @@ function levelNumberToString(level: number): string {
   }
 }
 
+function clearArray(array: unknown[]): void {
+  for (let i = array.length - 1; i >= 0; i--) {
+    delete array[i];
+  }
+}
+
 interface GeneralSpell {
   index: string;
   name: string;
@@ -92,18 +122,19 @@ interface AllSpells {
 }
 
 let spellData: AllSpells;
-const spellsByLevel: GeneralSpell[][] = [
-  [],
-  [],
-  [],
-  [],
-  [],
-  [],
-  [],
-  [],
-  [],
-  [],
-];
+
+const cardsArray: HTMLDivElement[] = [];
+const filteredArray: HTMLDivElement[] = [];
+
+const cardSort = {
+  sort: 'name',
+  filter: {
+    apply: false,
+    name: '',
+    level: -1,
+    school: 0,
+  },
+};
 
 async function getAllSpellData(): Promise<void> {
   try {
@@ -113,13 +144,6 @@ async function getAllSpellData(): Promise<void> {
 
     // get spellData value
     spellData = (await response.json()) as AllSpells;
-
-    // fill spellsByLevel arrays
-    for (let i = 0; i < spellData.count; i++) {
-      const spellResult = spellData.results[i];
-      const spellLevel = spellResult.level;
-      spellsByLevel[spellLevel].push(spellResult);
-    }
   } catch (err) {
     console.error('Error:', err);
   }
@@ -184,8 +208,6 @@ function renderCard(
   return $card;
 }
 
-const cardsArray: HTMLDivElement[] = [];
-
 async function renderAllCardsInitial(): Promise<void> {
   await getAllSpellData();
 
@@ -194,34 +216,34 @@ async function renderAllCardsInitial(): Promise<void> {
     cardsArray.push(renderCard(spellInfo.name, spellInfo.level, spellInfo.url));
   }
 
-  sortCardsName();
+  sortCards('name');
 }
 
 renderAllCardsInitial();
 
-function sortCardsName(): void {
-  cardsArray.sort((a, b) => {
-    const firstName = a.getAttribute('data-name') as string;
-    const secondName = b.getAttribute('data-name') as string;
-    return firstName.localeCompare(secondName);
-  });
-  cardsArray.forEach((element) => {
-    $spellsListCardsDiv.appendChild(element);
-  });
-}
+function sortCards(criteria: string): void {
+  if (criteria === 'name') {
+    cardsArray.sort((a, b) => {
+      const firstName = a.getAttribute('data-name') as string;
+      const secondName = b.getAttribute('data-name') as string;
+      return firstName.localeCompare(secondName);
+    });
+  } else if (criteria === 'level') {
+    cardsArray.sort(
+      (a, b) =>
+        Number(a.getAttribute('data-level')) -
+        Number(b.getAttribute('data-level')),
+    );
+  }
 
-function sortCardsLevel(): void {
-  cardsArray.sort(
-    (a, b) =>
-      Number(a.getAttribute('data-level')) -
-      Number(b.getAttribute('data-level')),
-  );
   cardsArray.forEach((element) => {
     $spellsListCardsDiv.appendChild(element);
   });
 }
 
 $spellsListSortDropdown.addEventListener('input', () => {
+  cardSort.sort = $spellsListSortDropdown.value;
+
   // clear cards
   while ($spellsListCardsDiv.childNodes.length > 0) {
     if (!$spellsListCardsDiv.firstElementChild) break;
@@ -229,14 +251,68 @@ $spellsListSortDropdown.addEventListener('input', () => {
   }
 
   // re-render cards based on sort value
-  if ($spellsListSortDropdown.value === 'level') {
-    sortCardsLevel();
+  sortCards(cardSort.sort);
+});
+
+$spellsListSearchSortForm.addEventListener('submit', (event: Event) => {
+  event.preventDefault();
+  if ($spellsListSearchInput.value) {
+    cardSort.filter.name = $spellsListSearchInput.value;
+    cardSort.filter.apply = true;
+    filterSpellsList();
+    $spellsListCardsDiv.className += ' hidden';
+    $spellsListFilteredCardsDiv.classList.remove('hidden');
   } else {
-    sortCardsName();
+    sortCards(cardSort.sort);
+    $spellsListFilteredCardsDiv.className += ' hidden';
+    $spellsListCardsDiv.classList.remove('hidden');
   }
 });
 
+$spellsListFilterBtn.addEventListener('click', () => {
+  $spellsListFilterDialog.showModal();
+});
+
+async function filterSpellsList(): Promise<void> {
+  try {
+    let apiFilterUrl = '?';
+    if (cardSort.filter.name) {
+      const urlName = cardSort.filter.name.replace(' ', '%20');
+      apiFilterUrl += `name=${urlName}`;
+    }
+    if (cardSort.filter.level > -1) {
+      apiFilterUrl += `&level=${cardSort.filter.level}`;
+    }
+    if (cardSort.filter.school) {
+      apiFilterUrl += `&school=${cardSort.filter.school}`;
+    }
+    const response = await fetch(
+      `https://www.dnd5eapi.co/api/spells${apiFilterUrl}`,
+    );
+
+    if (!response.ok) throw new Error(`Fetch error status: ${response.status}`);
+
+    const filteredSpellData = await response.json();
+
+    clearArray(filteredArray);
+
+    for (let i = 0; i < filteredSpellData.count; i++) {
+      const spellInfo = filteredSpellData.results[i];
+      filteredArray.push(
+        renderCard(spellInfo.name, spellInfo.level, spellInfo.url),
+      );
+    }
+
+    filteredArray.forEach((element) => {
+      $spellsListFilteredCardsDiv.appendChild(element);
+    });
+  } catch (err) {
+    console.error('Error:', err);
+  }
+}
+
 // SPELLS LIST --> SPELL DETAILS ----------------------------------------------
+// ----------------------------------------------------------------------------
 
 const $spellDetailsView = document.querySelector(
   '#spell-details-view',
@@ -340,7 +416,7 @@ function generateFullSubclassName(subclass: string): string {
 
 let spellDetails: SpellDetails;
 
-$spellsListCardsDiv.addEventListener('click', async (event: Event) => {
+$spellsListView.addEventListener('click', async (event: Event) => {
   try {
     const $target = event.target as HTMLElement;
 
@@ -490,6 +566,7 @@ async function getSpellDetails(spellUrl: string): Promise<void> {
 }
 
 // SPELL DETAILS --> SPELLS LIST -----------------------------------------------
+// ----------------------------------------------------------------------------
 
 const $spellDetailsBackAnchor = document.querySelector(
   '#spell-details-back-anchor',

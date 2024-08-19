@@ -27,10 +27,32 @@ const $spellsListCardsDiv = document.querySelector('#spells-list-cards-div');
 const $spellsListSortDropdown = document.querySelector(
   '#spells-list-sort-dropdown',
 );
+const $spellsListFilterBtn = document.querySelector('#spells-list-filter-btn');
+const $spellsListFilterDialog = document.querySelector(
+  '#spells-list-filter-dialog',
+);
+const $spellsListSearchSortForm = document.querySelector(
+  '#spells-list-search-sort-form',
+);
+const $spellsListSearchInput = document.querySelector(
+  '#spells-list-search-input',
+);
+const $spellsListFilteredCardsDiv = document.querySelector(
+  '#spells-list-filtered-cards-div',
+);
 if (!$spellsListView) throw new Error('$spellsListView query failed');
 if (!$spellsListCardsDiv) throw new Error('$spellsListCardsDiv query failed');
 if (!$spellsListSortDropdown)
   throw new Error('$spellsListSortDropdown query failed');
+if (!$spellsListFilterBtn) throw new Error('$spellsListFilterBtn query failed');
+if (!$spellsListFilterDialog)
+  throw new Error('$spellsListFilterDialog query failed');
+if (!$spellsListSearchSortForm)
+  throw new Error('$spellsListSearchSortForm query failed');
+if (!$spellsListSearchInput)
+  throw new Error('$spellsListSearchInput query failed');
+if (!$spellsListFilteredCardsDiv)
+  throw new Error('$spellsListFilteredCardsDiv query failed');
 function randomSpellCircleColor() {
   const randInt = Math.floor(Math.random() * 7);
   switch (randInt) {
@@ -64,8 +86,23 @@ function levelNumberToString(level) {
       return level.toString() + 'th';
   }
 }
+function clearArray(array) {
+  for (let i = array.length - 1; i >= 0; i--) {
+    delete array[i];
+  }
+}
 let spellData;
-const spellsByLevel = [[], [], [], [], [], [], [], [], [], []];
+const cardsArray = [];
+const filteredArray = [];
+const cardSort = {
+  sort: 'name',
+  filter: {
+    apply: false,
+    name: '',
+    level: -1,
+    school: 0,
+  },
+};
 async function getAllSpellData() {
   try {
     const response = await fetch('https://www.dnd5eapi.co/api/spells');
@@ -73,12 +110,6 @@ async function getAllSpellData() {
       throw new Error(`Fetch error. Status: ${response.status}`);
     // get spellData value
     spellData = await response.json();
-    // fill spellsByLevel arrays
-    for (let i = 0; i < spellData.count; i++) {
-      const spellResult = spellData.results[i];
-      const spellLevel = spellResult.level;
-      spellsByLevel[spellLevel].push(spellResult);
-    }
   } catch (err) {
     console.error('Error:', err);
   }
@@ -128,50 +159,94 @@ function renderCard(spellName, spellLevel, spellUrl) {
   $nameDiv.appendChild($nameSpan);
   return $card;
 }
-const cardsArray = [];
 async function renderAllCardsInitial() {
   await getAllSpellData();
   for (let i = 0; i < spellData.results.length; i++) {
     const spellInfo = spellData.results[i];
     cardsArray.push(renderCard(spellInfo.name, spellInfo.level, spellInfo.url));
   }
-  sortCardsName();
+  sortCards('name');
 }
 renderAllCardsInitial();
-function sortCardsName() {
-  cardsArray.sort((a, b) => {
-    const firstName = a.getAttribute('data-name');
-    const secondName = b.getAttribute('data-name');
-    return firstName.localeCompare(secondName);
-  });
-  cardsArray.forEach((element) => {
-    $spellsListCardsDiv.appendChild(element);
-  });
-}
-function sortCardsLevel() {
-  cardsArray.sort(
-    (a, b) =>
-      Number(a.getAttribute('data-level')) -
-      Number(b.getAttribute('data-level')),
-  );
+function sortCards(criteria) {
+  if (criteria === 'name') {
+    cardsArray.sort((a, b) => {
+      const firstName = a.getAttribute('data-name');
+      const secondName = b.getAttribute('data-name');
+      return firstName.localeCompare(secondName);
+    });
+  } else if (criteria === 'level') {
+    cardsArray.sort(
+      (a, b) =>
+        Number(a.getAttribute('data-level')) -
+        Number(b.getAttribute('data-level')),
+    );
+  }
   cardsArray.forEach((element) => {
     $spellsListCardsDiv.appendChild(element);
   });
 }
 $spellsListSortDropdown.addEventListener('input', () => {
+  cardSort.sort = $spellsListSortDropdown.value;
   // clear cards
   while ($spellsListCardsDiv.childNodes.length > 0) {
     if (!$spellsListCardsDiv.firstElementChild) break;
     $spellsListCardsDiv.removeChild($spellsListCardsDiv.firstElementChild);
   }
   // re-render cards based on sort value
-  if ($spellsListSortDropdown.value === 'level') {
-    sortCardsLevel();
+  sortCards(cardSort.sort);
+});
+$spellsListSearchSortForm.addEventListener('submit', (event) => {
+  event.preventDefault();
+  if ($spellsListSearchInput.value) {
+    cardSort.filter.name = $spellsListSearchInput.value;
+    cardSort.filter.apply = true;
+    filterSpellsList();
+    $spellsListCardsDiv.className += ' hidden';
+    $spellsListFilteredCardsDiv.classList.remove('hidden');
   } else {
-    sortCardsName();
+    sortCards(cardSort.sort);
+    $spellsListFilteredCardsDiv.className += ' hidden';
+    $spellsListCardsDiv.classList.remove('hidden');
   }
 });
+$spellsListFilterBtn.addEventListener('click', () => {
+  $spellsListFilterDialog.showModal();
+});
+async function filterSpellsList() {
+  try {
+    let apiFilterUrl = '?';
+    if (cardSort.filter.name) {
+      const urlName = cardSort.filter.name.replace(' ', '%20');
+      apiFilterUrl += `name=${urlName}`;
+    }
+    if (cardSort.filter.level > -1) {
+      apiFilterUrl += `&level=${cardSort.filter.level}`;
+    }
+    if (cardSort.filter.school) {
+      apiFilterUrl += `&school=${cardSort.filter.school}`;
+    }
+    const response = await fetch(
+      `https://www.dnd5eapi.co/api/spells${apiFilterUrl}`,
+    );
+    if (!response.ok) throw new Error(`Fetch error status: ${response.status}`);
+    const filteredSpellData = await response.json();
+    clearArray(filteredArray);
+    for (let i = 0; i < filteredSpellData.count; i++) {
+      const spellInfo = filteredSpellData.results[i];
+      filteredArray.push(
+        renderCard(spellInfo.name, spellInfo.level, spellInfo.url),
+      );
+    }
+    filteredArray.forEach((element) => {
+      $spellsListFilteredCardsDiv.appendChild(element);
+    });
+  } catch (err) {
+    console.error('Error:', err);
+  }
+}
 // SPELLS LIST --> SPELL DETAILS ----------------------------------------------
+// ----------------------------------------------------------------------------
 const $spellDetailsView = document.querySelector('#spell-details-view');
 const $spellDetailsName = document.querySelector('#spell-details-name');
 const $spellDetailsLevelSchool = document.querySelector(
@@ -244,7 +319,7 @@ function generateFullSubclassName(subclass) {
   }
 }
 let spellDetails;
-$spellsListCardsDiv.addEventListener('click', async (event) => {
+$spellsListView.addEventListener('click', async (event) => {
   try {
     const $target = event.target;
     const $targetCard = $target.closest('div.card');
@@ -371,6 +446,7 @@ async function getSpellDetails(spellUrl) {
   }
 }
 // SPELL DETAILS --> SPELLS LIST -----------------------------------------------
+// ----------------------------------------------------------------------------
 const $spellDetailsBackAnchor = document.querySelector(
   '#spell-details-back-anchor',
 );

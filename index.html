@@ -38,11 +38,11 @@
           </select>
           <form id="spells-list-search-sort-form">
             <input id="spells-list-search-input" placeholder="Search spells:" />
-            <button id="spells-list-search-sort-submit-btn">
+            <button id="spells-list-search-sort-submit-btn" type="submit">
               <i class="fa-solid fa-magnifying-glass"></i>
             </button>
           </form>
-          <button id="spells-list-filter-btn">Filter</button>
+          <button id="spells-list-filter-btn" type="button">Filter</button>
         </div>
         <dialog id="spells-list-filter-dialog">
           <form id="spells-list-filter-form">
@@ -74,9 +74,13 @@
               <option value="necromancy">Necromancy</option>
               <option value="transmutation">Transmutation</option>
             </select>
+            <button id="clear-filter-btn" type="button">Reset Filters</button>
+            <button id="cancel-filter-btn" type="button">Cancel</button>
+            <button id="save-filter-btn" type="submit">Filter</button>
           </form>
         </dialog>
         <div id="spells-list-cards-div" class="row"></div>
+        <div id="spells-list-filtered-cards-div" class="row hidden"></div>
       </div>
 
       <!-- SPELL DETAILS VIEW -->
