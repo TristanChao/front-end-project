@@ -19,6 +19,10 @@ button {
   font-family: Quattrocento, 'Times New Roman', Times, serif;
 }
 
+button:hover {
+  cursor: pointer;
+}
+
 .view {
   margin-left: auto;
   margin-right: auto;
@@ -124,6 +128,33 @@ button {
 #spells-list-filter-dialog input,
 #spells-list-filter-dialog select {
   width: 100%;
+}
+
+#clear-filter-btn {
+  border: none;
+  background: none;
+  text-decoration: underline;
+}
+
+#filter-form-buttons-div {
+  display: flex;
+  justify-content: space-between;
+}
+
+#filter-form-buttons-div button {
+  padding: 5px 10px;
+}
+
+#cancel-filter-btn {
+  border: none;
+  color: white;
+  background-color: #333;
+}
+
+#submit-filter-btn {
+  border: none;
+  color: white;
+  background-color: #f00;
 }
 
 #spells-list-cards-div {
