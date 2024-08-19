@@ -211,27 +211,28 @@ select {
   }
 }
 
-@media (width >= 570px) {
+@media (width >= 590px) {
   #spells-list-view {
-    width: 510px;
-    padding: 0;
+    width: 530px;
+    padding-right: 0;
+    padding-left: 20px;
   }
 }
 
-@media (width >= 740px) {
+@media (width >= 760px) {
   #spells-list-view {
-    width: 680px;
+    width: 700px;
   }
 }
 
-@media (width >= 910px) {
+@media (width >= 930px) {
   #spells-list-view {
-    width: 850px;
+    width: 870px;
   }
 }
 
 @media (width >= 1100px) {
   #spells-list-view {
-    width: 1020px;
+    width: 1040px;
   }
 }
