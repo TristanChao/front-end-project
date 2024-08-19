@@ -168,22 +168,29 @@ async function renderAllCardsInitial() {
   sortCards('name');
 }
 renderAllCardsInitial();
+function nameSort(a, b) {
+  const firstName = a.getAttribute('data-name');
+  const secondName = b.getAttribute('data-name');
+  return firstName.localeCompare(secondName);
+}
+function numberSort(a, b) {
+  return (
+    Number(a.getAttribute('data-level')) - Number(b.getAttribute('data-level'))
+  );
+}
 function sortCards(criteria) {
   if (criteria === 'name') {
-    cardsArray.sort((a, b) => {
-      const firstName = a.getAttribute('data-name');
-      const secondName = b.getAttribute('data-name');
-      return firstName.localeCompare(secondName);
-    });
+    cardsArray.sort(nameSort);
+    filteredArray.sort(nameSort);
   } else if (criteria === 'level') {
-    cardsArray.sort(
-      (a, b) =>
-        Number(a.getAttribute('data-level')) -
-        Number(b.getAttribute('data-level')),
-    );
+    cardsArray.sort(numberSort);
+    filteredArray.sort(numberSort);
   }
   cardsArray.forEach((element) => {
     $spellsListCardsDiv.appendChild(element);
+  });
+  filteredArray.forEach((element) => {
+    $spellsListFilteredCardsDiv.appendChild(element);
   });
 }
 $spellsListSortDropdown.addEventListener('input', () => {
@@ -232,6 +239,12 @@ async function filterSpellsList() {
     if (!response.ok) throw new Error(`Fetch error status: ${response.status}`);
     const filteredSpellData = await response.json();
     clearArray(filteredArray);
+    while ($spellsListFilteredCardsDiv.childNodes.length > 0) {
+      if (!$spellsListFilteredCardsDiv.firstChild) continue;
+      $spellsListFilteredCardsDiv.removeChild(
+        $spellsListFilteredCardsDiv.firstChild,
+      );
+    }
     for (let i = 0; i < filteredSpellData.count; i++) {
       const spellInfo = filteredSpellData.results[i];
       filteredArray.push(
@@ -411,7 +424,9 @@ $spellsListView.addEventListener('click', async (event) => {
       }
     }
     // SUBCLASSES
-    if (spellDetails.subclasses.length === 1) {
+    if (spellDetails.subclasses.length === 0) {
+      $spellDetailsSubclasses.textContent = 'none';
+    } else if (spellDetails.subclasses.length === 1) {
       $spellDetailsSubclasses.textContent = generateFullSubclassName(
         spellDetails.subclasses[0].name,
       );

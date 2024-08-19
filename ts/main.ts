@@ -221,23 +221,32 @@ async function renderAllCardsInitial(): Promise<void> {
 
 renderAllCardsInitial();
 
+function nameSort(a: HTMLDivElement, b: HTMLDivElement): number {
+  const firstName = a.getAttribute('data-name') as string;
+  const secondName = b.getAttribute('data-name') as string;
+  return firstName.localeCompare(secondName);
+}
+
+function numberSort(a: HTMLDivElement, b: HTMLDivElement): number {
+  return (
+    Number(a.getAttribute('data-level')) - Number(b.getAttribute('data-level'))
+  );
+}
+
 function sortCards(criteria: string): void {
   if (criteria === 'name') {
-    cardsArray.sort((a, b) => {
-      const firstName = a.getAttribute('data-name') as string;
-      const secondName = b.getAttribute('data-name') as string;
-      return firstName.localeCompare(secondName);
-    });
+    cardsArray.sort(nameSort);
+    filteredArray.sort(nameSort);
   } else if (criteria === 'level') {
-    cardsArray.sort(
-      (a, b) =>
-        Number(a.getAttribute('data-level')) -
-        Number(b.getAttribute('data-level')),
-    );
+    cardsArray.sort(numberSort);
+    filteredArray.sort(numberSort);
   }
 
   cardsArray.forEach((element) => {
     $spellsListCardsDiv.appendChild(element);
+  });
+  filteredArray.forEach((element) => {
+    $spellsListFilteredCardsDiv.appendChild(element);
   });
 }
 
@@ -295,6 +304,13 @@ async function filterSpellsList(): Promise<void> {
     const filteredSpellData = await response.json();
 
     clearArray(filteredArray);
+
+    while ($spellsListFilteredCardsDiv.childNodes.length > 0) {
+      if (!$spellsListFilteredCardsDiv.firstChild) continue;
+      $spellsListFilteredCardsDiv.removeChild(
+        $spellsListFilteredCardsDiv.firstChild,
+      );
+    }
 
     for (let i = 0; i < filteredSpellData.count; i++) {
       const spellInfo = filteredSpellData.results[i];
@@ -528,7 +544,9 @@ $spellsListView.addEventListener('click', async (event: Event) => {
     }
 
     // SUBCLASSES
-    if (spellDetails.subclasses.length === 1) {
+    if (spellDetails.subclasses.length === 0) {
+      $spellDetailsSubclasses.textContent = 'none';
+    } else if (spellDetails.subclasses.length === 1) {
       $spellDetailsSubclasses.textContent = generateFullSubclassName(
         spellDetails.subclasses[0].name,
       );
