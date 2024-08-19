@@ -18,7 +18,7 @@ select {
   margin-right: auto;
   padding-left: 15px;
   padding-right: 15px;
-  max-width: 1000px;
+  max-width: 1020px;
 }
 
 /* NAVBAR */
@@ -52,7 +52,7 @@ select {
 /* SPELLS LIST VIEW */
 
 #spells-list-view {
-  width: 350px;
+  width: 370px;
 }
 
 #spells-list-sort-search-filter-div {
@@ -69,7 +69,7 @@ select {
 }
 
 #spells-list-cards-div {
-  justify-content: space-between;
+  justify-content: flex-start;
 }
 
 .card {
@@ -80,6 +80,7 @@ select {
   width: 150px;
   height: 225px;
   margin-bottom: 20px;
+  margin-right: 20px;
   transition: transform 0.25s;
 }
 
@@ -210,27 +211,27 @@ select {
   }
 }
 
-@media (width >= 550px) {
+@media (width >= 570px) {
   #spells-list-view {
-    width: 490px;
+    width: 510px;
     padding: 0;
   }
 }
 
-@media (width >= 720px) {
+@media (width >= 740px) {
   #spells-list-view {
-    width: 660px;
+    width: 680px;
   }
 }
 
-@media (width >= 890px) {
+@media (width >= 910px) {
   #spells-list-view {
-    width: 830px;
+    width: 850px;
   }
 }
 
-@media (width >= 1078px) {
+@media (width >= 1100px) {
   #spells-list-view {
-    width: 1000px;
+    width: 1020px;
   }
 }
