@@ -6,6 +6,13 @@ h1 {
   font-family: 'Playfair Display', 'Times New Roman', Times, serif;
 }
 
+select {
+  border-radius: 5px;
+  background-color: #f1f1f1;
+  border: 1px solid #c7c7c7;
+  font-family: Quattrocento, 'Times New Roman', Times, serif;
+}
+
 .view {
   margin-left: auto;
   margin-right: auto;
@@ -13,6 +20,8 @@ h1 {
   padding-right: 15px;
   max-width: 1000px;
 }
+
+/* NAVBAR */
 
 .header {
   height: 80px;
@@ -23,15 +32,40 @@ h1 {
 }
 
 #title {
-  margin-left: 15px;
+  margin: 0 0 0 15px;
   color: white;
   font-size: 28px;
+}
+
+#navbar-spells-list-view-anchor {
+  display: none;
+  margin-left: 30px;
+  color: white;
+  font-size: 28px;
+  font-family: 'Playfair Display', 'Times New Roman', Times, serif;
+}
+
+#navbar-spells-list-view-anchor:hover {
+  cursor: pointer;
 }
 
 /* SPELLS LIST VIEW */
 
 #spells-list-view {
   width: 350px;
+}
+
+#spells-list-sort-search-filter-div {
+  margin-bottom: 20px;
+}
+
+#spells-list-sort-label {
+  font-size: 24px;
+}
+
+#spells-list-sort-dropdown {
+  font-size: 24px;
+  padding: 5px;
 }
 
 #spells-list-cards-div {
@@ -42,7 +76,7 @@ h1 {
   background-color: #fff9eb;
   border-radius: 5px;
   border: 1px solid #f5e8cc;
-  box-shadow: 2px 4px 4px;
+  box-shadow: 2px 4px 4px #9a9a9a;
   width: 150px;
   height: 225px;
   margin-bottom: 20px;
@@ -168,6 +202,12 @@ h1 {
 
 #spell-details-description-div > div {
   margin-bottom: 10px;
+}
+
+@media (width >= 420px) {
+  #navbar-spells-list-view-anchor {
+    display: inline;
+  }
 }
 
 @media (width >= 550px) {
