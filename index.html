@@ -30,12 +30,19 @@
         <h1>Spells List</h1>
         <div id="spells-list-sort-search-filter-div">
           <label id="spells-list-sort-label" for="spells-list-sort-dropdown">
-            Sort:
+            Sort by:
           </label>
           <select id="spells-list-sort-dropdown">
             <option value="name">Name</option>
             <option value="level">Level</option>
           </select>
+          <form id="spells-list-search-sort-form">
+            <input id="spells-list-search-input" placeholder="Search spells:" />
+            <button id="spells-list-search-sort-submit-btn">
+              <i class="fa-solid fa-magnifying-glass"></i>
+            </button>
+          </form>
+          <button id="spells-list-filter-btn">Filter</button>
         </div>
         <div id="spells-list-cards-div" class="row"></div>
       </div>
