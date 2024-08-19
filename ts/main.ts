@@ -173,7 +173,6 @@ let filteredArray: HTMLDivElement[] = [];
 const cardSort = {
   sort: 'name',
   filter: {
-    apply: false,
     name: '',
     level: -1,
     school: '',
@@ -321,7 +320,6 @@ $spellsListSearchSortForm.addEventListener('submit', (event: Event) => {
   event.preventDefault();
   if ($spellsListSearchInput.value) {
     cardSort.filter.name = $spellsListSearchInput.value;
-    cardSort.filter.apply = true;
     $spellsListFilterNameInput.value = cardSort.filter.name;
     filterSpellsList();
     switchCardsList('filtered cards');
@@ -392,6 +390,13 @@ async function filterSpellsList(): Promise<void> {
 // then switches to the all cards view
 $clearFilterBtn.addEventListener('click', () => {
   $spellsListFilterForm.reset();
+  $spellsListSearchInput.value = '';
+  cardSort.filter = {
+    name: '',
+    level: -1,
+    school: '',
+  };
+  $spellsListFilterDialog.close();
   switchCardsList('all cards');
 });
 
