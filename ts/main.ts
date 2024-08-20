@@ -1,8 +1,11 @@
+/* global spellbookData */
+
 // GLOBAL
 
 function swapViews(view: string): void {
   $spellsListView.classList.add('hidden');
   $spellDetailsView.classList.add('hidden');
+  $spellbookFormView.classList.add('hidden');
 
   switch (view) {
     case 'spells list':
@@ -11,11 +14,14 @@ function swapViews(view: string): void {
     case 'spell details':
       $spellDetailsView.classList.remove('hidden');
       break;
+    case 'spellbook form':
+      $spellbookFormView.classList.remove('hidden');
+      break;
   }
 }
 
-// NAVBAR ---------------------------------------------------------------------
-// ----------------------------------------------------------------------------
+// NAVBAR =====================================================================
+// ============================================================================
 
 const $navbarSpellsListViewAnchor = document.querySelector(
   '#navbar-spells-list-view-anchor',
@@ -28,8 +34,43 @@ $navbarSpellsListViewAnchor.addEventListener('click', () => {
   swapViews('spells list');
 });
 
-// SPELLS LIST ----------------------------------------------------------------
-// ----------------------------------------------------------------------------
+// MENU =======================================================================
+// ============================================================================
+
+const $menuBtn = document.querySelector('#menu-btn') as HTMLButtonElement;
+const $menuDialog = document.querySelector('#menu-dialog') as HTMLDialogElement;
+const $collisionDiv = document.querySelector(
+  '#collision-div',
+) as HTMLDivElement;
+const $closeMenuBtn = document.querySelector(
+  '#close-menu-btn',
+) as HTMLButtonElement;
+
+if (!$menuBtn) throw new Error('$menuBtn query failed');
+if (!$menuDialog) throw new Error('$menuDialog query failed');
+if (!$collisionDiv) throw new Error('$collisionDiv query failed');
+if (!$closeMenuBtn) throw new Error('$closeMenuBtn query failed');
+
+$menuBtn.addEventListener('click', () => {
+  $menuDialog.showModal();
+});
+
+$menuDialog.addEventListener('click', (event: Event) => {
+  const $target = event.target as HTMLElement;
+  if (
+    !$target.closest('#collision-div') &&
+    !$target.matches('#collision-div')
+  ) {
+    $menuDialog.close();
+  }
+});
+
+$closeMenuBtn.addEventListener('click', () => {
+  $menuDialog.close();
+});
+
+// SPELLS LIST ================================================================
+// ============================================================================
 
 const $spellsListView = document.querySelector(
   '#spells-list-view',
@@ -399,8 +440,8 @@ $spellsListFilterForm.addEventListener('submit', async (event: Event) => {
   }
 });
 
-// SPELLS LIST --> SPELL DETAILS ----------------------------------------------
-// ----------------------------------------------------------------------------
+// SPELLS LIST --> SPELL DETAILS ==============================================
+// ============================================================================
 
 const $spellDetailsView = document.querySelector(
   '#spell-details-view',
@@ -655,8 +696,8 @@ async function getSpellDetails(spellUrl: string): Promise<void> {
   }
 }
 
-// SPELL DETAILS --> SPELLS LIST -----------------------------------------------
-// ----------------------------------------------------------------------------
+// SPELL DETAILS --> SPELLS LIST ==============================================
+// ============================================================================
 
 const $spellDetailsBackAnchor = document.querySelector(
   '#spell-details-back-anchor',
@@ -668,3 +709,186 @@ if (!$spellDetailsBackAnchor)
 $spellDetailsBackAnchor.addEventListener('click', () => {
   swapViews('spells list');
 });
+
+// SPELLBOOK FORM VIEW ========================================================
+// ============================================================================
+
+const $spellbookFormView = document.querySelector(
+  '#spellbook-form-view',
+) as HTMLDivElement;
+const $spellbookForm = document.querySelector(
+  '#spellbook-form',
+) as HTMLFormElement;
+const $spellbookNameInput = document.querySelector(
+  '#spellbook-name-input',
+) as HTMLInputElement;
+const $classSelect = document.querySelector(
+  '#class-select',
+) as HTMLSelectElement;
+const $classLevelGroup = document.querySelector(
+  '#class-level-group',
+) as HTMLDivElement;
+const $classLevelSelect = document.querySelector(
+  '#class-level-select',
+) as HTMLSelectElement;
+const $abilityModGroup = document.querySelector(
+  '#ability-mod-group',
+) as HTMLDivElement;
+const $abilityModLabel = document.querySelector(
+  '#ability-mod-label',
+) as HTMLLabelElement;
+const $abilityModSelect = document.querySelector(
+  '#ability-mod-select',
+) as HTMLSelectElement;
+const $autofillGroupDiv = document.querySelector(
+  '#autofill-group-div',
+) as HTMLDivElement;
+const $autofillSpellsCheckbox = document.querySelector(
+  '#autofill-spells-checkbox',
+) as HTMLInputElement;
+
+if (!$spellbookFormView) throw new Error('$spellbookFormView query failed');
+if (!$spellbookForm) throw new Error('$spellbookForm query failed');
+if (!$spellbookNameInput) throw new Error('$spellbookNameInput query failed');
+if (!$classSelect) throw new Error('$classSelect query failed');
+if (!$classLevelGroup) throw new Error('$classLevelGroup query failed');
+if (!$classLevelSelect) throw new Error('$classLevelSelect query failed');
+if (!$abilityModGroup) throw new Error('$abilityModGroup query failed');
+if (!$abilityModLabel) throw new Error('$abilityModLabel query failed');
+if (!$abilityModSelect) throw new Error('$abilityModSelect query failed');
+if (!$autofillGroupDiv) throw new Error('$autofillGroupDiv query failed');
+if (!$autofillSpellsCheckbox)
+  throw new Error('$autofillSpellsCheckbox query failed');
+
+const classAbilities: object = {
+  bard: 'Charisma',
+  cleric: 'Wisdom',
+  druid: 'Wisdom',
+  paladin: 'Charisma',
+  ranger: 'Wisdom',
+  sorcerer: 'Charisma',
+  warlock: 'Charisma',
+  wizard: 'Intelligence',
+};
+
+function classSpellAccess(className: string, classLevel: number): number {
+  if (
+    className === 'cleric' ||
+    className === 'druid' ||
+    className === 'sorcerer' ||
+    className === 'wizard'
+  ) {
+    if (classLevel <= 18) {
+      return Math.ceil(classLevel / 2);
+    } else {
+      return 9;
+    }
+  } else if (className === 'paladin' || className === 'ranger') {
+    if (classLevel === 1) {
+      return 0;
+    } else {
+      return Math.ceil(classLevel / 4);
+    }
+  } else if (className === 'warlock') {
+    if (classLevel <= 10) {
+      return Math.ceil(classLevel / 2);
+    } else {
+      return 5;
+    }
+  } else {
+    return 0;
+  }
+}
+
+$classSelect.addEventListener('input', () => {
+  if ($classSelect.value) {
+    $classLevelGroup.classList.remove('hidden');
+    $abilityModGroup.classList.remove('hidden');
+  } else {
+    $classLevelGroup.classList.add('hidden');
+    $abilityModGroup.classList.add('hidden');
+  }
+
+  $autofillSpellsCheckbox.checked = false;
+
+  switch ($classSelect.value) {
+    case 'cleric':
+    case 'druid':
+    case 'paladin':
+    case 'ranger':
+      $autofillGroupDiv.classList.remove('hidden');
+      break;
+    default:
+      $autofillGroupDiv.classList.add('hidden');
+  }
+
+  $abilityModLabel.textContent =
+    classAbilities[$classSelect.value as keyof object] + ' Modifier:';
+});
+
+$spellbookForm.addEventListener('submit', async (event: Event) => {
+  try {
+    event.preventDefault();
+
+    let name: string;
+    if (!$spellbookNameInput.value) {
+      name = 'New Spellbook ' + spellbookData.nextSpellbookId.toString();
+    } else {
+      name = $spellbookNameInput.value;
+    }
+
+    const id = spellbookData.nextSpellbookId;
+    spellbookData.nextSpellbookId++;
+
+    const newSpellbook: Spellbook = {
+      name,
+      id,
+      spells: [],
+    };
+
+    if ($classSelect.value) {
+      newSpellbook.class = $classSelect.value;
+      newSpellbook.classLevel = Number($classLevelSelect.value);
+      newSpellbook.modifier = Number($abilityModSelect.value);
+    }
+
+    if ($autofillSpellsCheckbox.checked) {
+      await getClassSpells($classSelect.value, newSpellbook.spells);
+    }
+
+    spellbookData.spellbooks.push(newSpellbook);
+    writeData();
+
+    swapViews('spells list');
+
+    $spellbookForm.reset();
+  } catch (err) {
+    console.error('Error:', err);
+  }
+});
+
+async function getClassSpells(
+  className: string,
+  spellsArray: string[],
+): Promise<void> {
+  try {
+    const response = await fetch(
+      `https://www.dnd5eapi.co/api/classes/${className}/spells`,
+    );
+    if (!response.ok) throw new Error(`Fetch error status: ${response.status}`);
+
+    const classSpellsObj = await response.json();
+
+    classSpellsObj.results.forEach((element: GeneralSpell) => {
+      if (
+        element.level > 0 &&
+        element.level <=
+          classSpellAccess(className, Number($classLevelSelect.value))
+      ) {
+        spellsArray.push(element.name);
+      }
+    });
+  } catch (err) {
+    console.error('Error:', err);
+  }
+}

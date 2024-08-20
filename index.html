@@ -20,13 +20,41 @@
   <body>
     <header>
       <div class="header">
-        <h1 id="title">5e Spellbook</h1>
-        <a id="navbar-spells-list-view-anchor">All Spells</a>
+        <div id="navbar-title-anchor-div">
+          <h1 id="title">5e Spellbook</h1>
+          <a id="navbar-spells-list-view-anchor">All Spells</a>
+        </div>
+        <div id="navbar-spellbook-menu-div">
+          <button id="navbar-new-spellbook-btn" class="hidden">
+            + New Spellbook
+          </button>
+          <button id="menu-btn">
+            <i class="fa-solid fa-bars"></i>
+          </button>
+        </div>
       </div>
     </header>
     <main>
+      <!-- MENU -->
+      <dialog id="menu-dialog">
+        <div id="collision-div">
+          <button id="close-menu-btn" class="btn-as-anchor">
+            <i class="fa-solid fa-bars"></i>
+          </button>
+          <div>
+            <a id="menu-all-spells-anchor">All Spells</a>
+          </div>
+          <h1>Spellbooks</h1>
+          <div class="spellbook-link-div">
+            <a id="menu-new-spellbook-anchor" class="spellbook-link">
+              New Spellbook
+            </a>
+          </div>
+          <div id="menu-spellbooks-div"></div>
+        </div>
+      </dialog>
       <!-- SPELLS LIST VIEW -->
-      <div id="spells-list-view" class="view">
+      <div id="spells-list-view" class="view hidden">
         <h1>Spells List</h1>
         <div id="spells-list-sort-search-filter-div">
           <label id="spells-list-sort-label" for="spells-list-sort-dropdown">
@@ -150,6 +178,106 @@
             <div class="scroll-end scroll-end-light"></div>
           </div>
         </div>
+      </div>
+
+      <!-- SPELLBOOK CREATE/EDIT FORM VIEW -->
+      <div id="spellbook-form-view" class="view">
+        <h1>New Spellbook</h1>
+        <form id="spellbook-form">
+          <div class="spellbook-form-group">
+            <div>
+              <label for="spellbook-name-input">Spellbook Name:</label>
+            </div>
+            <div>
+              <input id="spellbook-name-input" placeholder="New Spellbook 1" />
+            </div>
+          </div>
+
+          <div class="spellbook-form-group">
+            <div>
+              <label for="class-select"> Class &#40;Optional&#41;: </label>
+            </div>
+            <div>
+              <select id="class-select">
+                <option value="">--</option>
+                <option value="bard">Bard</option>
+                <option value="cleric">Cleric</option>
+                <option value="druid">Druid</option>
+                <option value="paladin">Paladin</option>
+                <option value="ranger">Ranger</option>
+                <option value="sorcerer">Sorcerer</option>
+                <option value="warlock">Warlock</option>
+                <option value="wizard">Wizard</option>
+              </select>
+            </div>
+          </div>
+
+          <div id="class-level-group" class="spellbook-form-group hidden">
+            <div>
+              <label for="class-level-select">Class Level:</label>
+            </div>
+            <div>
+              <select id="class-level-select">
+                <option value="1">1</option>
+                <option value="2">2</option>
+                <option value="3">3</option>
+                <option value="4">4</option>
+                <option value="5">5</option>
+                <option value="6">6</option>
+                <option value="7">7</option>
+                <option value="8">8</option>
+                <option value="9">9</option>
+                <option value="10">10</option>
+                <option value="11">11</option>
+                <option value="12">12</option>
+                <option value="13">13</option>
+                <option value="14">14</option>
+                <option value="15">15</option>
+                <option value="16">16</option>
+                <option value="17">17</option>
+                <option value="18">18</option>
+                <option value="19">19</option>
+                <option value="20">20</option>
+              </select>
+            </div>
+          </div>
+
+          <div id="ability-mod-group" class="spellbook-form-group hidden">
+            <div>
+              <label id="ability-mod-label" for="ability-mod-select"> </label>
+            </div>
+            <div>
+              <select id="ability-mod-select">
+                <option value="5">+5</option>
+                <option value="4">+4</option>
+                <option value="3">+3</option>
+                <option value="2">+2</option>
+                <option value="1">+1</option>
+                <option value="0" selected>0</option>
+                <option value="-1">-1</option>
+                <option value="-2">-2</option>
+                <option value="-3">-3</option>
+                <option value="-4">-4</option>
+                <option value="-5">-5</option>
+              </select>
+            </div>
+          </div>
+
+          <div id="autofill-group-div" class="spellbook-form-group hidden">
+            <input
+              id="autofill-spells-checkbox"
+              type="checkbox"
+              value="autofill" />
+            <label for="autofill-spells-checkbox">
+              Autofill with class spells
+            </label>
+          </div>
+
+          <div class="spellbook-form-group row justify-sb">
+            <button id="spellbook-form-cancel-btn" type="button">Cancel</button>
+            <button id="spellbook-form-save-btn" type="submit">Save</button>
+          </div>
+        </form>
       </div>
 
       <!-- view -->

@@ -3,6 +3,10 @@
   flex-wrap: wrap;
 }
 
+.justify-sb {
+  justify-content: space-between;
+}
+
 .hidden {
   display: none;
 }
