@@ -771,6 +771,35 @@ const classAbilities: object = {
   wizard: 'Intelligence',
 };
 
+function classSpellAccess(className: string, classLevel: number): number {
+  if (
+    className === 'cleric' ||
+    className === 'druid' ||
+    className === 'sorcerer' ||
+    className === 'wizard'
+  ) {
+    if (classLevel <= 18) {
+      return Math.ceil(classLevel / 2);
+    } else {
+      return 9;
+    }
+  } else if (className === 'paladin' || className === 'ranger') {
+    if (classLevel === 1) {
+      return 0;
+    } else {
+      return Math.ceil(classLevel / 4);
+    }
+  } else if (className === 'warlock') {
+    if (classLevel <= 10) {
+      return Math.ceil(classLevel / 2);
+    } else {
+      return 5;
+    }
+  } else {
+    return 0;
+  }
+}
+
 $classSelect.addEventListener('input', () => {
   if ($classSelect.value) {
     $classLevelGroup.classList.remove('hidden');
@@ -797,31 +826,69 @@ $classSelect.addEventListener('input', () => {
     classAbilities[$classSelect.value as keyof object] + ' Modifier:';
 });
 
-$spellbookForm.addEventListener('submit', (event: Event) => {
-  event.preventDefault();
+$spellbookForm.addEventListener('submit', async (event: Event) => {
+  try {
+    event.preventDefault();
 
-  let name: string;
-  if (!$spellbookNameInput.value) {
-    name = 'New Spellbook ' + spellbookData.nextSpellbookId.toString();
-  } else {
-    name = $spellbookNameInput.value;
+    let name: string;
+    if (!$spellbookNameInput.value) {
+      name = 'New Spellbook ' + spellbookData.nextSpellbookId.toString();
+    } else {
+      name = $spellbookNameInput.value;
+    }
+
+    const id = spellbookData.nextSpellbookId;
+    spellbookData.nextSpellbookId++;
+
+    const newSpellbook: Spellbook = {
+      name,
+      id,
+      spells: [],
+    };
+
+    if ($classSelect.value) {
+      newSpellbook.class = $classSelect.value;
+      newSpellbook.classLevel = Number($classLevelSelect.value);
+      newSpellbook.modifier = Number($abilityModSelect.value);
+    }
+
+    if ($autofillSpellsCheckbox.checked) {
+      await getClassSpells($classSelect.value, newSpellbook.spells);
+    }
+
+    spellbookData.spellbooks.push(newSpellbook);
+    writeData();
+
+    swapViews('spells list');
+
+    $spellbookForm.reset();
+  } catch (err) {
+    console.error('Error:', err);
   }
-
-  const id = spellbookData.nextSpellbookId;
-  spellbookData.nextSpellbookId++;
-
-  const newSpellbook: Spellbook = {
-    name,
-    id,
-    spells: [],
-  };
-
-  if ($classSelect.value) {
-    newSpellbook.class = $classSelect.value;
-    newSpellbook.classLevel = Number($classLevelSelect.value);
-    newSpellbook.modifier = Number($abilityModSelect.value);
-  }
-
-  spellbookData.spellbooks.push(newSpellbook);
-  writeData();
 });
+
+async function getClassSpells(
+  className: string,
+  spellsArray: string[],
+): Promise<void> {
+  try {
+    const response = await fetch(
+      `https://www.dnd5eapi.co/api/classes/${className}/spells`,
+    );
+    if (!response.ok) throw new Error(`Fetch error status: ${response.status}`);
+
+    const classSpellsObj = await response.json();
+
+    classSpellsObj.results.forEach((element: GeneralSpell) => {
+      if (
+        element.level > 0 &&
+        element.level <=
+          classSpellAccess(className, Number($classLevelSelect.value))
+      ) {
+        spellsArray.push(element.name);
+      }
+    });
+  } catch (err) {
+    console.error('Error:', err);
+  }
+}
