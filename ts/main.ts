@@ -14,8 +14,8 @@ function swapViews(view: string): void {
   }
 }
 
-// NAVBAR ---------------------------------------------------------------------
-// ----------------------------------------------------------------------------
+// NAVBAR =====================================================================
+// ============================================================================
 
 const $navbarSpellsListViewAnchor = document.querySelector(
   '#navbar-spells-list-view-anchor',
@@ -28,8 +28,43 @@ $navbarSpellsListViewAnchor.addEventListener('click', () => {
   swapViews('spells list');
 });
 
-// SPELLS LIST ----------------------------------------------------------------
-// ----------------------------------------------------------------------------
+// MENU =======================================================================
+// ============================================================================
+
+const $menuBtn = document.querySelector('#menu-btn') as HTMLButtonElement;
+const $menuDialog = document.querySelector('#menu-dialog') as HTMLDialogElement;
+const $collisionDiv = document.querySelector(
+  '#collision-div',
+) as HTMLDivElement;
+const $closeMenuBtn = document.querySelector(
+  '#close-menu-btn',
+) as HTMLButtonElement;
+
+if (!$menuBtn) throw new Error('$menuBtn query failed');
+if (!$menuDialog) throw new Error('$menuDialog query failed');
+if (!$collisionDiv) throw new Error('$collisionDiv query failed');
+if (!$closeMenuBtn) throw new Error('$closeMenuBtn query failed');
+
+$menuBtn.addEventListener('click', () => {
+  $menuDialog.showModal();
+});
+
+$menuDialog.addEventListener('click', (event: Event) => {
+  const $target = event.target as HTMLElement;
+  if (
+    !$target.closest('#collision-div') &&
+    !$target.matches('#collision-div')
+  ) {
+    $menuDialog.close();
+  }
+});
+
+$closeMenuBtn.addEventListener('click', () => {
+  $menuDialog.close();
+});
+
+// SPELLS LIST ================================================================
+// ============================================================================
 
 const $spellsListView = document.querySelector(
   '#spells-list-view',
@@ -399,8 +434,8 @@ $spellsListFilterForm.addEventListener('submit', async (event: Event) => {
   }
 });
 
-// SPELLS LIST --> SPELL DETAILS ----------------------------------------------
-// ----------------------------------------------------------------------------
+// SPELLS LIST --> SPELL DETAILS ==============================================
+// ============================================================================
 
 const $spellDetailsView = document.querySelector(
   '#spell-details-view',
@@ -655,8 +690,8 @@ async function getSpellDetails(spellUrl: string): Promise<void> {
   }
 }
 
-// SPELL DETAILS --> SPELLS LIST -----------------------------------------------
-// ----------------------------------------------------------------------------
+// SPELL DETAILS --> SPELLS LIST ==============================================
+// ============================================================================
 
 const $spellDetailsBackAnchor = document.querySelector(
   '#spell-details-back-anchor',

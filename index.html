@@ -20,11 +20,46 @@
   <body>
     <header>
       <div class="header">
-        <h1 id="title">5e Spellbook</h1>
-        <a id="navbar-spells-list-view-anchor">All Spells</a>
+        <div id="navbar-title-anchor-div">
+          <h1 id="title">5e Spellbook</h1>
+          <a id="navbar-spells-list-view-anchor">All Spells</a>
+        </div>
+        <div id="navbar-spellbook-menu-div">
+          <button id="navbar-new-spellbook-btn" class="hidden">
+            + New Spellbook
+          </button>
+          <button id="menu-btn">
+            <i class="fa-solid fa-bars"></i>
+          </button>
+        </div>
       </div>
     </header>
     <main>
+      <!-- MENU -->
+      <dialog id="menu-dialog">
+        <div id="collision-div">
+          <button id="close-menu-btn" class="btn-as-anchor">
+            <i class="fa-solid fa-bars"></i>
+          </button>
+          <div>
+            <a id="menu-all-spells-anchor">All Spells</a>
+          </div>
+          <h1>Spellbooks</h1>
+          <div class="spellbook-link-div">
+            <a id="menu-new-spellbook-anchor" class="spellbook-link">
+              New Spellbook
+            </a>
+          </div>
+          <div id="menu-spellbooks-div">
+            <div class="spellbook-link-div">
+              <a class="spellbook-link">Immeril Liadon</a>
+            </div>
+            <div class="spellbook-link-div">
+              <a class="spellbook-link">Alton Tealeaf</a>
+            </div>
+          </div>
+        </div>
+      </dialog>
       <!-- SPELLS LIST VIEW -->
       <div id="spells-list-view" class="view">
         <h1>Spells List</h1>
