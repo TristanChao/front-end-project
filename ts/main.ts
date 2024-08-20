@@ -20,6 +20,35 @@ function swapViews(view: string): void {
   }
 }
 
+function classSpellAccess(className: string, classLevel: number): number {
+  if (
+    className === 'cleric' ||
+    className === 'druid' ||
+    className === 'sorcerer' ||
+    className === 'wizard'
+  ) {
+    if (classLevel <= 18) {
+      return Math.ceil(classLevel / 2);
+    } else {
+      return 9;
+    }
+  } else if (className === 'paladin' || className === 'ranger') {
+    if (classLevel === 1) {
+      return 0;
+    } else {
+      return Math.ceil(classLevel / 4);
+    }
+  } else if (className === 'warlock') {
+    if (classLevel <= 10) {
+      return Math.ceil(classLevel / 2);
+    } else {
+      return 5;
+    }
+  } else {
+    return 0;
+  }
+}
+
 // NAVBAR =====================================================================
 // ============================================================================
 
@@ -57,6 +86,9 @@ const $closeMenuBtn = document.querySelector(
 const $menuNewSpellbookAnchor = document.querySelector(
   '#menu-new-spellbook-anchor',
 ) as HTMLButtonElement;
+const $menuSpellbooksDiv = document.querySelector(
+  '#menu-spellbooks-div',
+) as HTMLDivElement;
 
 if (!$menuBtn) throw new Error('$menuBtn query failed');
 if (!$menuDialog) throw new Error('$menuDialog query failed');
@@ -64,6 +96,26 @@ if (!$collisionDiv) throw new Error('$collisionDiv query failed');
 if (!$closeMenuBtn) throw new Error('$closeMenuBtn query failed');
 if (!$menuNewSpellbookAnchor)
   throw new Error('$menuNewSpellbookAnchor query failed');
+if (!$menuSpellbooksDiv) throw new Error('$menuSpellbooksDiv query failed');
+
+function renderSpellbookLink(bookName: string, bookId: number): HTMLDivElement {
+  const $div = document.createElement('div');
+  $div.className = 'spellbook-link-div';
+
+  const $anchor = document.createElement('a');
+  $anchor.className = 'spellbook-link';
+  $anchor.textContent = bookName;
+  $anchor.setAttribute('data-id', bookId.toString());
+
+  $div.appendChild($anchor);
+
+  return $div;
+}
+
+spellbookData.spellbooks.forEach((element) => {
+  const $bookLink = renderSpellbookLink(element.name, element.id);
+  $menuSpellbooksDiv.appendChild($bookLink);
+});
 
 $menuBtn.addEventListener('click', () => {
   $menuDialog.showModal();
@@ -85,6 +137,7 @@ $closeMenuBtn.addEventListener('click', () => {
 
 $menuNewSpellbookAnchor.addEventListener('click', () => {
   swapViews('spellbook form');
+  $menuDialog.close();
 });
 
 // SPELLS LIST ================================================================
@@ -789,35 +842,6 @@ const classAbilities: object = {
   wizard: 'Intelligence',
 };
 
-function classSpellAccess(className: string, classLevel: number): number {
-  if (
-    className === 'cleric' ||
-    className === 'druid' ||
-    className === 'sorcerer' ||
-    className === 'wizard'
-  ) {
-    if (classLevel <= 18) {
-      return Math.ceil(classLevel / 2);
-    } else {
-      return 9;
-    }
-  } else if (className === 'paladin' || className === 'ranger') {
-    if (classLevel === 1) {
-      return 0;
-    } else {
-      return Math.ceil(classLevel / 4);
-    }
-  } else if (className === 'warlock') {
-    if (classLevel <= 10) {
-      return Math.ceil(classLevel / 2);
-    } else {
-      return 5;
-    }
-  } else {
-    return 0;
-  }
-}
-
 $classSelect.addEventListener('input', () => {
   if ($classSelect.value) {
     $classLevelGroup.classList.remove('hidden');
@@ -880,6 +904,24 @@ $spellbookForm.addEventListener('submit', async (event: Event) => {
     swapViews('spells list');
 
     $spellbookForm.reset();
+    $classLevelGroup.classList.add('hidden');
+    $abilityModGroup.classList.add('hidden');
+
+    const $bookLink = renderSpellbookLink(newSpellbook.name, newSpellbook.id);
+    $menuSpellbooksDiv.appendChild($bookLink);
+
+    const bookLinkArr = Array.from(
+      $menuSpellbooksDiv.children,
+    ) as HTMLDivElement[];
+    bookLinkArr.sort((a, b) => {
+      const firstName = a.textContent as string;
+      const secondName = b.textContent as string;
+      return firstName.localeCompare(secondName);
+    });
+
+    bookLinkArr.forEach((element) => {
+      $menuSpellbooksDiv.appendChild(element);
+    });
   } catch (err) {
     console.error('Error:', err);
   }

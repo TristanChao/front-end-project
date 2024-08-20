@@ -18,6 +18,11 @@ interface SpellbookData {
 const spellbookData: SpellbookData = readData();
 
 function writeData(): void {
+  spellbookData.spellbooks.sort((a, b) => {
+    const first = a.name as string;
+    const second = b.name as string;
+    return first.localeCompare(second);
+  });
   const dataJson = JSON.stringify(spellbookData);
   localStorage.setItem('spellbook-data', dataJson);
 }
