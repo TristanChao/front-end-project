@@ -190,7 +190,7 @@
       <!-- SPELLBOOK CREATE/EDIT FORM VIEW -->
       <div id="spellbook-form-view" class="view">
         <h1>New Spellbook</h1>
-        <form>
+        <form id="spellbook-form">
           <div class="spellbook-form-group">
             <div>
               <label for="spellbook-name-input">Spellbook Name:</label>
@@ -255,11 +255,11 @@
             </div>
             <div>
               <select id="ability-mod-select">
-                <option value="+5">+5</option>
-                <option value="+4">+4</option>
-                <option value="+3">+3</option>
-                <option value="+2">+2</option>
-                <option value="+1">+1</option>
+                <option value="5">+5</option>
+                <option value="4">+4</option>
+                <option value="3">+3</option>
+                <option value="2">+2</option>
+                <option value="1">+1</option>
                 <option value="0" selected>0</option>
                 <option value="-1">-1</option>
                 <option value="-2">-2</option>
@@ -268,6 +268,16 @@
                 <option value="-5">-5</option>
               </select>
             </div>
+          </div>
+
+          <div id="autofill-group-div" class="spellbook-form-group hidden">
+            <input
+              id="autofill-spells-checkbox"
+              type="checkbox"
+              value="autofill" />
+            <label for="autofill-spells-checkbox">
+              Autofill with class spells
+            </label>
           </div>
 
           <div class="spellbook-form-group row justify-sb">

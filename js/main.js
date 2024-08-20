@@ -1,4 +1,5 @@
 'use strict';
+/* global spellbookData */
 // GLOBAL
 function swapViews(view) {
   $spellsListView.classList.add('hidden');
@@ -567,6 +568,7 @@ $spellDetailsBackAnchor.addEventListener('click', () => {
 // SPELLBOOK FORM VIEW ========================================================
 // ============================================================================
 const $spellbookFormView = document.querySelector('#spellbook-form-view');
+const $spellbookForm = document.querySelector('#spellbook-form');
 const $spellbookNameInput = document.querySelector('#spellbook-name-input');
 const $classSelect = document.querySelector('#class-select');
 const $classLevelGroup = document.querySelector('#class-level-group');
@@ -574,7 +576,12 @@ const $classLevelSelect = document.querySelector('#class-level-select');
 const $abilityModGroup = document.querySelector('#ability-mod-group');
 const $abilityModLabel = document.querySelector('#ability-mod-label');
 const $abilityModSelect = document.querySelector('#ability-mod-select');
+const $autofillGroupDiv = document.querySelector('#autofill-group-div');
+const $autofillSpellsCheckbox = document.querySelector(
+  '#autofill-spells-checkbox',
+);
 if (!$spellbookFormView) throw new Error('$spellbookFormView query failed');
+if (!$spellbookForm) throw new Error('$spellbookForm query failed');
 if (!$spellbookNameInput) throw new Error('$spellbookNameInput query failed');
 if (!$classSelect) throw new Error('$classSelect query failed');
 if (!$classLevelGroup) throw new Error('$classLevelGroup query failed');
@@ -582,6 +589,9 @@ if (!$classLevelSelect) throw new Error('$classLevelSelect query failed');
 if (!$abilityModGroup) throw new Error('$abilityModGroup query failed');
 if (!$abilityModLabel) throw new Error('$abilityModLabel query failed');
 if (!$abilityModSelect) throw new Error('$abilityModSelect query failed');
+if (!$autofillGroupDiv) throw new Error('$autofillGroupDiv query failed');
+if (!$autofillSpellsCheckbox)
+  throw new Error('$autofillSpellsCheckbox query failed');
 const classAbilities = {
   bard: 'Charisma',
   cleric: 'Wisdom',
@@ -600,6 +610,40 @@ $classSelect.addEventListener('input', () => {
     $classLevelGroup.classList.add('hidden');
     $abilityModGroup.classList.add('hidden');
   }
+  $autofillSpellsCheckbox.checked = false;
+  switch ($classSelect.value) {
+    case 'cleric':
+    case 'druid':
+    case 'paladin':
+    case 'ranger':
+      $autofillGroupDiv.classList.remove('hidden');
+      break;
+    default:
+      $autofillGroupDiv.classList.add('hidden');
+  }
   $abilityModLabel.textContent =
     classAbilities[$classSelect.value] + ' Modifier:';
+});
+$spellbookForm.addEventListener('submit', (event) => {
+  event.preventDefault();
+  let name;
+  if (!$spellbookNameInput.value) {
+    name = 'New Spellbook ' + spellbookData.nextSpellbookId.toString();
+  } else {
+    name = $spellbookNameInput.value;
+  }
+  const id = spellbookData.nextSpellbookId;
+  spellbookData.nextSpellbookId++;
+  const newSpellbook = {
+    name,
+    id,
+    spells: [],
+  };
+  if ($classSelect.value) {
+    newSpellbook.class = $classSelect.value;
+    newSpellbook.classLevel = Number($classLevelSelect.value);
+    newSpellbook.modifier = Number($abilityModSelect.value);
+  }
+  spellbookData.spellbooks.push(newSpellbook);
+  writeData();
 });

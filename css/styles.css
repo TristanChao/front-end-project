@@ -394,6 +394,10 @@ select:hover {
   padding: 5px 10px;
 }
 
+#spellbook-form-view #autofill-spells-checkbox {
+  width: fit-content;
+}
+
 .spellbook-form-group {
   margin-bottom: 15px;
 }

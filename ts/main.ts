@@ -1,3 +1,5 @@
+/* global spellbookData */
+
 // GLOBAL
 
 function swapViews(view: string): void {
@@ -714,6 +716,9 @@ $spellDetailsBackAnchor.addEventListener('click', () => {
 const $spellbookFormView = document.querySelector(
   '#spellbook-form-view',
 ) as HTMLDivElement;
+const $spellbookForm = document.querySelector(
+  '#spellbook-form',
+) as HTMLFormElement;
 const $spellbookNameInput = document.querySelector(
   '#spellbook-name-input',
 ) as HTMLInputElement;
@@ -735,8 +740,15 @@ const $abilityModLabel = document.querySelector(
 const $abilityModSelect = document.querySelector(
   '#ability-mod-select',
 ) as HTMLSelectElement;
+const $autofillGroupDiv = document.querySelector(
+  '#autofill-group-div',
+) as HTMLDivElement;
+const $autofillSpellsCheckbox = document.querySelector(
+  '#autofill-spells-checkbox',
+) as HTMLInputElement;
 
 if (!$spellbookFormView) throw new Error('$spellbookFormView query failed');
+if (!$spellbookForm) throw new Error('$spellbookForm query failed');
 if (!$spellbookNameInput) throw new Error('$spellbookNameInput query failed');
 if (!$classSelect) throw new Error('$classSelect query failed');
 if (!$classLevelGroup) throw new Error('$classLevelGroup query failed');
@@ -744,6 +756,9 @@ if (!$classLevelSelect) throw new Error('$classLevelSelect query failed');
 if (!$abilityModGroup) throw new Error('$abilityModGroup query failed');
 if (!$abilityModLabel) throw new Error('$abilityModLabel query failed');
 if (!$abilityModSelect) throw new Error('$abilityModSelect query failed');
+if (!$autofillGroupDiv) throw new Error('$autofillGroupDiv query failed');
+if (!$autofillSpellsCheckbox)
+  throw new Error('$autofillSpellsCheckbox query failed');
 
 const classAbilities: object = {
   bard: 'Charisma',
@@ -765,6 +780,48 @@ $classSelect.addEventListener('input', () => {
     $abilityModGroup.classList.add('hidden');
   }
 
+  $autofillSpellsCheckbox.checked = false;
+
+  switch ($classSelect.value) {
+    case 'cleric':
+    case 'druid':
+    case 'paladin':
+    case 'ranger':
+      $autofillGroupDiv.classList.remove('hidden');
+      break;
+    default:
+      $autofillGroupDiv.classList.add('hidden');
+  }
+
   $abilityModLabel.textContent =
     classAbilities[$classSelect.value as keyof object] + ' Modifier:';
+});
+
+$spellbookForm.addEventListener('submit', (event: Event) => {
+  event.preventDefault();
+
+  let name: string;
+  if (!$spellbookNameInput.value) {
+    name = 'New Spellbook ' + spellbookData.nextSpellbookId.toString();
+  } else {
+    name = $spellbookNameInput.value;
+  }
+
+  const id = spellbookData.nextSpellbookId;
+  spellbookData.nextSpellbookId++;
+
+  const newSpellbook: Spellbook = {
+    name,
+    id,
+    spells: [],
+  };
+
+  if ($classSelect.value) {
+    newSpellbook.class = $classSelect.value;
+    newSpellbook.classLevel = Number($classLevelSelect.value);
+    newSpellbook.modifier = Number($abilityModSelect.value);
+  }
+
+  spellbookData.spellbooks.push(newSpellbook);
+  writeData();
 });
