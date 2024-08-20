@@ -6,19 +6,31 @@ h1 {
   font-family: 'Playfair Display', 'Times New Roman', Times, serif;
 }
 
-select {
+select,
+input {
   border-radius: 5px;
   background-color: #f1f1f1;
   border: 1px solid #c7c7c7;
   font-family: Quattrocento, 'Times New Roman', Times, serif;
 }
 
+button {
+  border-radius: 5px;
+  font-family: Quattrocento, 'Times New Roman', Times, serif;
+}
+
+button:hover {
+  cursor: pointer;
+}
+
+select:hover {
+  cursor: pointer;
+}
+
 .view {
   margin-left: auto;
   margin-right: auto;
-  padding-left: 15px;
-  padding-right: 15px;
-  max-width: 1020px;
+  max-width: 1040px;
 }
 
 /* NAVBAR */
@@ -52,20 +64,101 @@ select {
 /* SPELLS LIST VIEW */
 
 #spells-list-view {
-  width: 370px;
+  width: 360px;
+  padding-left: 20px;
 }
 
 #spells-list-sort-search-filter-div {
   margin-bottom: 20px;
 }
 
-#spells-list-sort-label {
+#spells-list-sort-search-filter-div > * {
   font-size: 24px;
+}
+
+#spells-list-search-sort-form {
+  display: none;
+  height: fit-content;
+  width: calc(100% - 293px);
 }
 
 #spells-list-sort-dropdown {
   font-size: 24px;
   padding: 5px;
+  margin-right: 50px;
+}
+
+#spells-list-search-input {
+  font-size: 24px;
+  padding: 6px;
+  width: calc(100% - 37px);
+}
+
+#spells-list-search-sort-submit-btn {
+  height: 40px;
+  width: 30px;
+  transform: translate(0, -3px);
+  background-color: #f00;
+  border: none;
+}
+
+.fa-magnifying-glass {
+  color: white;
+}
+
+#spells-list-filter-btn {
+  background-color: #333;
+  color: white;
+  padding: 5px 10px;
+}
+
+#spells-list-filter-dialog {
+  min-width: 330px;
+  width: 330px;
+}
+
+#spells-list-filter-dialog * {
+  font-size: 20px;
+}
+
+#spells-list-filter-dialog form {
+  margin-top: 10px;
+}
+
+#spells-list-filter-dialog div {
+  margin-bottom: 15px;
+}
+
+#spells-list-filter-dialog input,
+#spells-list-filter-dialog select {
+  width: 100%;
+}
+
+#clear-filter-btn {
+  border: none;
+  background: none;
+  text-decoration: underline;
+}
+
+#filter-form-buttons-div {
+  display: flex;
+  justify-content: space-between;
+}
+
+#filter-form-buttons-div button {
+  padding: 5px 10px;
+}
+
+#cancel-filter-btn {
+  border: none;
+  color: white;
+  background-color: #333;
+}
+
+#submit-filter-btn {
+  border: none;
+  color: white;
+  background-color: #f00;
 }
 
 #spells-list-cards-div {
@@ -133,7 +226,7 @@ select {
 /* SPELL DETAILS VIEW */
 
 #spell-details-view {
-  padding-top: 20px;
+  padding: 20px 15px;
   min-width: 350px;
 }
 
@@ -214,8 +307,14 @@ select {
 @media (width >= 590px) {
   #spells-list-view {
     width: 530px;
-    padding-right: 0;
-    padding-left: 20px;
+  }
+
+  #spells-list-search-sort-form {
+    display: inline-block;
+  }
+
+  #spells-list-sort-dropdown {
+    margin-right: 0;
   }
 }
 
