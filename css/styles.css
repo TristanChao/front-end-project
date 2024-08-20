@@ -23,6 +23,10 @@ button:hover {
   cursor: pointer;
 }
 
+select:hover {
+  cursor: pointer;
+}
+
 .view {
   margin-left: auto;
   margin-right: auto;
