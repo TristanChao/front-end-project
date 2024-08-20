@@ -1,8 +1,8 @@
 // GLOBAL
 
 function swapViews(view: string): void {
-  $spellsListView.className = 'view hidden';
-  $spellDetailsView.className = 'view hidden';
+  $spellsListView.classList.add('hidden');
+  $spellDetailsView.classList.add('hidden');
 
   switch (view) {
     case 'spells list':
@@ -335,7 +335,7 @@ async function filterSpellsList(): Promise<void> {
       if (filteredSpellNames.includes(elementName)) {
         element.classList.remove('hidden');
       } else {
-        element.className += ' hidden';
+        element.classList.add('hidden');
       }
     });
   } catch (err) {
@@ -516,7 +516,7 @@ $spellsListView.addEventListener('click', async (event: Event) => {
 
     const cardSpellUrl = $targetCard.getAttribute('data-url');
 
-    $spellsListView.className += ' hidden';
+    $spellsListView.classList.add('hidden');
 
     if (!cardSpellUrl) throw new Error('cardSpellUrl does not exist');
 

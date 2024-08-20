@@ -1,8 +1,8 @@
 'use strict';
 // GLOBAL
 function swapViews(view) {
-  $spellsListView.className = 'view hidden';
-  $spellDetailsView.className = 'view hidden';
+  $spellsListView.classList.add('hidden');
+  $spellDetailsView.classList.add('hidden');
   switch (view) {
     case 'spells list':
       $spellsListView.classList.remove('hidden');
@@ -268,7 +268,7 @@ async function filterSpellsList() {
       if (filteredSpellNames.includes(elementName)) {
         element.classList.remove('hidden');
       } else {
-        element.className += ' hidden';
+        element.classList.add('hidden');
       }
     });
   } catch (err) {
@@ -405,7 +405,7 @@ $spellsListView.addEventListener('click', async (event) => {
       return;
     }
     const cardSpellUrl = $targetCard.getAttribute('data-url');
-    $spellsListView.className += ' hidden';
+    $spellsListView.classList.add('hidden');
     if (!cardSpellUrl) throw new Error('cardSpellUrl does not exist');
     await getSpellDetails(cardSpellUrl);
     // NAME
