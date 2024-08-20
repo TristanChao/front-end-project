@@ -52,9 +52,6 @@ const $spellsListSearchSortForm = document.querySelector(
 const $spellsListSearchInput = document.querySelector(
   '#spells-list-search-input',
 ) as HTMLInputElement;
-const $spellsListFilteredCardsDiv = document.querySelector(
-  '#spells-list-filtered-cards-div',
-) as HTMLDivElement;
 const $cancelFilterBtn = document.querySelector(
   '#cancel-filter-btn',
 ) as HTMLButtonElement;
@@ -85,8 +82,6 @@ if (!$spellsListSearchSortForm)
   throw new Error('$spellsListSearchSortForm query failed');
 if (!$spellsListSearchInput)
   throw new Error('$spellsListSearchInput query failed');
-if (!$spellsListFilteredCardsDiv)
-  throw new Error('$spellsListFilteredCardsDiv query failed');
 if (!$cancelFilterBtn) throw new Error('$cancelFilterBtn query failed');
 if (!$clearFilterBtn) throw new Error('$clearFilterBtn query failed');
 if (!$spellsListFilterForm)
@@ -135,24 +130,6 @@ function levelNumberToString(level: number): string {
   }
 }
 
-function switchCardsList(list: string): void {
-  if (list === 'all cards') {
-    if (!$spellsListFilteredCardsDiv.className.includes('hidden')) {
-      $spellsListFilteredCardsDiv.className += ' hidden';
-    }
-    if ($spellsListCardsDiv.className.includes('hidden')) {
-      $spellsListCardsDiv.classList.remove('hidden');
-    }
-  } else if (list === 'filtered cards') {
-    if (!$spellsListCardsDiv.className.includes('hidden')) {
-      $spellsListCardsDiv.className += ' hidden';
-    }
-    if ($spellsListFilteredCardsDiv.className.includes('hidden')) {
-      $spellsListFilteredCardsDiv.classList.remove('hidden');
-    }
-  }
-}
-
 interface GeneralSpell {
   index: string;
   name: string;
@@ -168,7 +145,6 @@ interface AllSpells {
 let spellData: AllSpells;
 
 const cardsArray: HTMLDivElement[] = [];
-let filteredArray: HTMLDivElement[] = [];
 
 const cardSort = {
   sort: 'name',
@@ -268,48 +244,32 @@ async function renderAllCardsInitial(): Promise<void> {
 
 renderAllCardsInitial();
 
-// an array.sort callback function to sort cards by their data-name attribute
-function nameSort(a: HTMLDivElement, b: HTMLDivElement): number {
-  const firstName = a.getAttribute('data-name') as string;
-  const secondName = b.getAttribute('data-name') as string;
-  return firstName.localeCompare(secondName);
-}
-
-// an array.sort callback function to sort cards by their data-level attribute
-function numberSort(a: HTMLDivElement, b: HTMLDivElement): number {
-  return (
-    Number(a.getAttribute('data-level')) - Number(b.getAttribute('data-level'))
-  );
-}
-
 // a function that will sort the cards in both the all cards array and the
 // filtered cards array
 function sortCards(criteria: string): void {
   if (criteria === 'name') {
-    cardsArray.sort(nameSort);
-    filteredArray.sort(nameSort);
+    cardsArray.sort((a, b) => {
+      const firstName = a.getAttribute('data-name') as string;
+      const secondName = b.getAttribute('data-name') as string;
+      return firstName.localeCompare(secondName);
+    });
   } else if (criteria === 'level') {
-    cardsArray.sort(numberSort);
-    filteredArray.sort(numberSort);
+    cardsArray.sort(
+      (a, b) =>
+        Number(a.getAttribute('data-level')) -
+        Number(b.getAttribute('data-level')),
+    );
   }
 
   cardsArray.forEach((element) => {
     $spellsListCardsDiv.appendChild(element);
   });
-  filteredArray.forEach((element) => {
-    $spellsListFilteredCardsDiv.appendChild(element);
-  });
 }
 
 // event listener for when the sort order is changed
 $spellsListSortDropdown.addEventListener('input', () => {
+  // get the sort value from the dropdown
   cardSort.sort = $spellsListSortDropdown.value;
-
-  // clear cards
-  while ($spellsListCardsDiv.childNodes.length > 0) {
-    if (!$spellsListCardsDiv.firstElementChild) break;
-    $spellsListCardsDiv.removeChild($spellsListCardsDiv.firstElementChild);
-  }
 
   // re-render cards based on sort value
   sortCards(cardSort.sort);
@@ -318,14 +278,16 @@ $spellsListSortDropdown.addEventListener('input', () => {
 // event listener for when the search bar is submitted
 $spellsListSearchSortForm.addEventListener('submit', (event: Event) => {
   event.preventDefault();
+
+  cardSort.filter.name = $spellsListSearchInput.value;
+  $spellsListFilterNameInput.value = cardSort.filter.name;
+
   if ($spellsListSearchInput.value) {
-    cardSort.filter.name = $spellsListSearchInput.value;
-    $spellsListFilterNameInput.value = cardSort.filter.name;
     filterSpellsList();
-    switchCardsList('filtered cards');
   } else {
-    sortCards(cardSort.sort);
-    switchCardsList('all cards');
+    for (let i = 0; i < cardsArray.length; i++) {
+      cardsArray[i].classList.remove('hidden');
+    }
   }
 });
 
@@ -334,9 +296,8 @@ $spellsListFilterBtn.addEventListener('click', () => {
   $spellsListFilterDialog.showModal();
 });
 
-/* function to query the api for a filter endpoint, and render those cards to
- the filtered cards array */
-// the filtered cards div is cleared before the new cards are added in
+/* function to query the api for a filter endpoint, and show or hide cards in
+the card array depending on if its name is returned from the fetch */
 async function filterSpellsList(): Promise<void> {
   try {
     // creates an endpoint url for the fetch command
@@ -358,28 +319,24 @@ async function filterSpellsList(): Promise<void> {
 
     if (!response.ok) throw new Error(`Fetch error status: ${response.status}`);
 
-    const filteredSpellData = await response.json();
+    // gets the API response as an object, then loops through to append all
+    // the spell names to a new array
+    const filteredSpellData = (await response.json()) as AllSpells;
+    const filteredSpellNames: string[] = [];
+    filteredSpellData.results.forEach((element) => {
+      filteredSpellNames.push(element.name);
+    });
 
-    filteredArray = [];
-
-    // clears the filtered cards div
-    while ($spellsListFilteredCardsDiv.childNodes.length > 0) {
-      if (!$spellsListFilteredCardsDiv.firstChild) continue;
-      $spellsListFilteredCardsDiv.removeChild(
-        $spellsListFilteredCardsDiv.firstChild,
-      );
-    }
-
-    // renders cards into the filtered cards array
-    for (let i = 0; i < filteredSpellData.count; i++) {
-      const spellInfo = filteredSpellData.results[i];
-      filteredArray.push(
-        renderCard(spellInfo.name, spellInfo.level, spellInfo.url),
-      );
-    }
-    // appends cards into the filtered cards div
-    filteredArray.forEach((element) => {
-      $spellsListFilteredCardsDiv.appendChild(element);
+    // loops through the card array and shows or hides depending if its name
+    // is included in the array of names
+    cardsArray.forEach((element: HTMLDivElement) => {
+      const elementName = element.getAttribute('data-name') as string;
+      if (!elementName) return;
+      if (filteredSpellNames.includes(elementName)) {
+        element.classList.remove('hidden');
+      } else {
+        element.className += ' hidden';
+      }
     });
   } catch (err) {
     console.error('Error:', err);
@@ -387,7 +344,7 @@ async function filterSpellsList(): Promise<void> {
 }
 
 // resets the filter form when the 'reset filters' button is clicked,
-// then switches to the all cards view
+// then shows all the cards
 $clearFilterBtn.addEventListener('click', () => {
   $spellsListFilterForm.reset();
   $spellsListSearchInput.value = '';
@@ -396,8 +353,10 @@ $clearFilterBtn.addEventListener('click', () => {
     level: -1,
     school: '',
   };
+  for (let i = 0; i < cardsArray.length; i++) {
+    cardsArray[i].classList.remove('hidden');
+  }
   $spellsListFilterDialog.close();
-  switchCardsList('all cards');
 });
 
 // resets the filter form to previous state when the 'cancel' button is clicked
@@ -429,14 +388,12 @@ $spellsListFilterForm.addEventListener('submit', async (event: Event) => {
       cardSort.filter.level < 0 &&
       !cardSort.filter.school
     ) {
-      switchCardsList('all cards');
       return;
     }
 
     // if the filter form is not empty, it will filter the spells and
     // switch to the filtered list
     await filterSpellsList();
-    switchCardsList('filtered cards');
   } catch (err) {
     console.error('Error:', err);
   }
@@ -450,7 +407,7 @@ const $spellDetailsView = document.querySelector(
 ) as HTMLDivElement;
 const $spellDetailsName = document.querySelector(
   '#spell-details-name',
-) as HTMLHeadElement;
+) as HTMLHeadingElement;
 const $spellDetailsLevelSchool = document.querySelector(
   '#spell-details-level-school',
 ) as HTMLSpanElement;
