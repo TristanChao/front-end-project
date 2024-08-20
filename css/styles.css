@@ -376,6 +376,15 @@ select:hover {
   margin-bottom: 10px;
 }
 
+/* SPELLBOOK FORM VIEW */
+
+#spellbook-form-view {
+  padding: 0 30px;
+  min-width: 350px;
+}
+
+/* MEDIA AT RULES */
+
 @media (width >= 420px) {
   #navbar-spells-list-view-anchor {
     display: inline;
