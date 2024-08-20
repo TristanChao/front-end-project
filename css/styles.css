@@ -381,6 +381,35 @@ select:hover {
 #spellbook-form-view {
   padding: 0 30px;
   min-width: 350px;
+  max-width: 800px;
+}
+
+#spellbook-form-view form * {
+  font-size: 20px;
+}
+
+#spellbook-form-view select,
+#spellbook-form-view input {
+  width: 100%;
+  padding: 5px 10px;
+}
+
+.spellbook-form-group {
+  margin-bottom: 15px;
+}
+
+#spellbook-form-view button {
+  padding: 5px 10px;
+  border: none;
+  color: white;
+}
+
+#spellbook-form-cancel-btn {
+  background-color: #333;
+}
+
+#spellbook-form-save-btn {
+  background-color: #f00;
 }
 
 /* MEDIA AT RULES */

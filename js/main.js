@@ -3,12 +3,16 @@
 function swapViews(view) {
   $spellsListView.classList.add('hidden');
   $spellDetailsView.classList.add('hidden');
+  $spellbookFormView.classList.add('hidden');
   switch (view) {
     case 'spells list':
       $spellsListView.classList.remove('hidden');
       break;
     case 'spell details':
       $spellDetailsView.classList.remove('hidden');
+      break;
+    case 'spellbook form':
+      $spellbookFormView.classList.remove('hidden');
       break;
   }
 }
@@ -559,4 +563,43 @@ if (!$spellDetailsBackAnchor)
   throw new Error('$spellDetailsBackAnchor query failed');
 $spellDetailsBackAnchor.addEventListener('click', () => {
   swapViews('spells list');
+});
+// SPELLBOOK FORM VIEW ========================================================
+// ============================================================================
+const $spellbookFormView = document.querySelector('#spellbook-form-view');
+const $spellbookNameInput = document.querySelector('#spellbook-name-input');
+const $classSelect = document.querySelector('#class-select');
+const $classLevelGroup = document.querySelector('#class-level-group');
+const $classLevelSelect = document.querySelector('#class-level-select');
+const $abilityModGroup = document.querySelector('#ability-mod-group');
+const $abilityModLabel = document.querySelector('#ability-mod-label');
+const $abilityModSelect = document.querySelector('#ability-mod-select');
+if (!$spellbookFormView) throw new Error('$spellbookFormView query failed');
+if (!$spellbookNameInput) throw new Error('$spellbookNameInput query failed');
+if (!$classSelect) throw new Error('$classSelect query failed');
+if (!$classLevelGroup) throw new Error('$classLevelGroup query failed');
+if (!$classLevelSelect) throw new Error('$classLevelSelect query failed');
+if (!$abilityModGroup) throw new Error('$abilityModGroup query failed');
+if (!$abilityModLabel) throw new Error('$abilityModLabel query failed');
+if (!$abilityModSelect) throw new Error('$abilityModSelect query failed');
+const classAbilities = {
+  bard: 'Charisma',
+  cleric: 'Wisdom',
+  druid: 'Wisdom',
+  paladin: 'Charisma',
+  ranger: 'Wisdom',
+  sorcerer: 'Charisma',
+  warlock: 'Charisma',
+  wizard: 'Intelligence',
+};
+$classSelect.addEventListener('input', () => {
+  if ($classSelect.value) {
+    $classLevelGroup.classList.remove('hidden');
+    $abilityModGroup.classList.remove('hidden');
+  } else {
+    $classLevelGroup.classList.add('hidden');
+    $abilityModGroup.classList.add('hidden');
+  }
+  $abilityModLabel.textContent =
+    classAbilities[$classSelect.value] + ' Modifier:';
 });

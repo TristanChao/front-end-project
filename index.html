@@ -196,7 +196,7 @@
               <label for="spellbook-name-input">Spellbook Name:</label>
             </div>
             <div>
-              <input id="spellbook-name-input" />
+              <input id="spellbook-name-input" placeholder="New Spellbook 1" />
             </div>
           </div>
 
@@ -219,13 +219,12 @@
             </div>
           </div>
 
-          <div class="spellbook-form-group">
+          <div id="class-level-group" class="spellbook-form-group hidden">
             <div>
               <label for="class-level-select">Class Level:</label>
             </div>
             <div>
               <select id="class-level-select">
-                <option value="0">--</option>
                 <option value="1">1</option>
                 <option value="2">2</option>
                 <option value="3">3</option>
@@ -250,7 +249,7 @@
             </div>
           </div>
 
-          <div class="spellbook-form-group">
+          <div id="ability-mod-group" class="spellbook-form-group hidden">
             <div>
               <label id="ability-mod-label" for="ability-mod-select"> </label>
             </div>
@@ -261,7 +260,7 @@
                 <option value="+3">+3</option>
                 <option value="+2">+2</option>
                 <option value="+1">+1</option>
-                <option value="0">0</option>
+                <option value="0" selected>0</option>
                 <option value="-1">-1</option>
                 <option value="-2">-2</option>
                 <option value="-3">-3</option>
@@ -271,7 +270,7 @@
             </div>
           </div>
 
-          <div class="spellbook-form-group">
+          <div class="spellbook-form-group row justify-sb">
             <button id="spellbook-form-cancel-btn" type="button">Cancel</button>
             <button id="spellbook-form-save-btn" type="submit">Save</button>
           </div>
