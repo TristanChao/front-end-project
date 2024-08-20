@@ -22,10 +22,18 @@ function swapViews(view) {
 const $navbarSpellsListViewAnchor = document.querySelector(
   '#navbar-spells-list-view-anchor',
 );
+const $navbarNewSpellbookBtn = document.querySelector(
+  '#navbar-new-spellbook-btn',
+);
 if (!$navbarSpellsListViewAnchor)
   throw new Error('$navbarSpellsListViewAnchor query failed');
+if (!$navbarNewSpellbookBtn)
+  throw new Error('$navbarNewSpellbookBtn query failed');
 $navbarSpellsListViewAnchor.addEventListener('click', () => {
   swapViews('spells list');
+});
+$navbarNewSpellbookBtn.addEventListener('click', () => {
+  swapViews('spellbook form');
 });
 // MENU =======================================================================
 // ============================================================================
@@ -33,10 +41,15 @@ const $menuBtn = document.querySelector('#menu-btn');
 const $menuDialog = document.querySelector('#menu-dialog');
 const $collisionDiv = document.querySelector('#collision-div');
 const $closeMenuBtn = document.querySelector('#close-menu-btn');
+const $menuNewSpellbookAnchor = document.querySelector(
+  '#menu-new-spellbook-anchor',
+);
 if (!$menuBtn) throw new Error('$menuBtn query failed');
 if (!$menuDialog) throw new Error('$menuDialog query failed');
 if (!$collisionDiv) throw new Error('$collisionDiv query failed');
 if (!$closeMenuBtn) throw new Error('$closeMenuBtn query failed');
+if (!$menuNewSpellbookAnchor)
+  throw new Error('$menuNewSpellbookAnchor query failed');
 $menuBtn.addEventListener('click', () => {
   $menuDialog.showModal();
 });
@@ -51,6 +64,9 @@ $menuDialog.addEventListener('click', (event) => {
 });
 $closeMenuBtn.addEventListener('click', () => {
   $menuDialog.close();
+});
+$menuNewSpellbookAnchor.addEventListener('click', () => {
+  swapViews('spellbook form');
 });
 // SPELLS LIST ================================================================
 // ============================================================================
