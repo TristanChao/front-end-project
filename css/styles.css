@@ -27,6 +27,10 @@ select:hover {
   cursor: pointer;
 }
 
+a:hover {
+  cursor: pointer;
+}
+
 .view {
   margin-left: auto;
   margin-right: auto;
@@ -95,8 +99,10 @@ select:hover {
 #menu-dialog {
   margin-right: 0;
   margin-top: 0;
+  margin-bottom: 0;
   border: none;
   padding: 0;
+  max-height: 100vh;
   height: 100vh;
   width: 280px;
 }
@@ -132,7 +138,13 @@ select:hover {
   text-decoration: underline;
 }
 
-.spellbook-link-div {
+#menu-spellbooks-ul {
+  padding-left: 0;
+  list-style-type: none;
+  margin: 10px 0;
+}
+
+.spellbook-link-li {
   margin-bottom: 10px;
 }
 
@@ -145,6 +157,10 @@ select:hover {
 #spells-list-view {
   width: 360px;
   padding-left: 20px;
+}
+
+#spells-list-header {
+  margin-right: 8px;
 }
 
 #spells-list-sort-search-filter-div {
@@ -238,6 +254,11 @@ select:hover {
   border: none;
   color: white;
   background-color: #f00;
+}
+
+#no-spells-p {
+  text-align: center;
+  margin-right: 20px;
 }
 
 #spells-list-cards-div {
@@ -419,7 +440,7 @@ select:hover {
 
 /* MEDIA AT RULES */
 
-@media (width >= 420px) {
+@media (width >= 460px) {
   #navbar-spells-list-view-anchor {
     display: inline;
   }
@@ -444,7 +465,7 @@ select:hover {
     width: 700px;
   }
 
-  #navbar-new-spellbook-btn {
+  .hidden-4-col {
     display: inline-block;
   }
 }

@@ -14,3 +14,7 @@
 .hover-pointer:hover {
   cursor: pointer;
 }
+
+.hidden-4-col {
+  display: none;
+}

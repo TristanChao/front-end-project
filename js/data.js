@@ -2,6 +2,11 @@
 /* exported spellbookData, writeData */
 const spellbookData = readData();
 function writeData() {
+  spellbookData.spellbooks.sort((a, b) => {
+    const first = a.name;
+    const second = b.name;
+    return first.localeCompare(second);
+  });
   const dataJson = JSON.stringify(spellbookData);
   localStorage.setItem('spellbook-data', dataJson);
 }
