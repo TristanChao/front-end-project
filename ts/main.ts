@@ -125,6 +125,29 @@ function clickOffModalClose(
   }
 }
 
+function indexOfSpellbookById(id: number): number {
+  const index = spellbookData.spellbooks.indexOf(
+    spellbookData.spellbooks.find((book) => book.id === id) as Spellbook,
+  );
+  return index;
+}
+
+function reSortSpellbookLinks(): void {
+  const bookLinkArr = Array.from(
+    $menuSpellbooksUl.children,
+  ) as HTMLDivElement[];
+
+  bookLinkArr.sort((a, b) => {
+    const firstName = a.textContent as string;
+    const secondName = b.textContent as string;
+    return firstName.localeCompare(secondName);
+  });
+
+  bookLinkArr.forEach((element) => {
+    $menuSpellbooksUl.appendChild(element);
+  });
+}
+
 const classAbilities: object = {
   bard: 'Charisma',
   cleric: 'Wisdom',
@@ -436,8 +459,8 @@ const $closeSpellbookSettingsBtn = document.querySelector(
   '#close-spellbook-settings-btn',
 ) as HTMLButtonElement;
 
-const $deleteConfirmationDialog = document.querySelector(
-  '#delete-confirmation-dialog',
+const $confirmDeleteDialog = document.querySelector(
+  '#confirm-delete-dialog',
 ) as HTMLDialogElement;
 const $confirmDeleteSpellbookNameSpan = document.querySelector(
   '#confirm-delete-spellbook-name-span',
@@ -458,8 +481,7 @@ if (!$deleteSpellbookBtn) throw new Error('$deleteSpellbookBtn query failed');
 if (!$closeSpellbookSettingsBtn)
   throw new Error('$closeSpellbookSettingsBtn query failed');
 
-if (!$deleteConfirmationDialog)
-  throw new Error('$deleteConfirmationDialog query failed');
+if (!$confirmDeleteDialog) throw new Error('$confirmDeleteDialog query failed');
 if (!$confirmDeleteSpellbookNameSpan)
   throw new Error('$confirmDeleteSpellbookNameSpan query failed');
 if (!$cancelDeleteBtn) throw new Error('$cancelDeleteBtn query failed');
@@ -495,6 +517,29 @@ $editSpellbookBtn.addEventListener('click', () => {
 
   $spellbookSettingsDialog.close();
   swapViews('spellbook form');
+});
+
+$deleteSpellbookBtn.addEventListener('click', () => {
+  $spellbookSettingsDialog.close();
+  $confirmDeleteDialog.showModal();
+});
+
+$cancelDeleteBtn.addEventListener('click', () => {
+  $confirmDeleteDialog.close();
+});
+
+$confirmDeleteBtn.addEventListener('click', () => {
+  if (!cardSort.spellbook?.id) return;
+  const deleteIndex = indexOfSpellbookById(cardSort.spellbook.id);
+  spellbookData.spellbooks.splice(deleteIndex, 1);
+
+  writeData();
+
+  $menuSpellbooksUl.children[deleteIndex].remove();
+  reSortSpellbookLinks();
+
+  $confirmDeleteDialog.close();
+  toSpellsList();
 });
 
 $closeSpellbookSettingsBtn.addEventListener('click', () => {
@@ -1158,21 +1203,25 @@ $spellbookForm.addEventListener('submit', async (event: Event) => {
       spellbookData.editing = null;
     } else {
       spellbookData.spellbooks.push(newSpellbook);
+
       const $bookLink = renderSpellbookLink(newSpellbook.name, newSpellbook.id);
       $menuSpellbooksUl.appendChild($bookLink);
 
-      const bookLinkArr = Array.from(
-        $menuSpellbooksUl.children,
-      ) as HTMLDivElement[];
-      bookLinkArr.sort((a, b) => {
-        const firstName = a.textContent as string;
-        const secondName = b.textContent as string;
-        return firstName.localeCompare(secondName);
-      });
+      // const bookLinkArr = Array.from(
+      //   $menuSpellbooksUl.children,
+      // ) as HTMLDivElement[];
 
-      bookLinkArr.forEach((element) => {
-        $menuSpellbooksUl.appendChild(element);
-      });
+      // bookLinkArr.sort((a, b) => {
+      //   const firstName = a.textContent as string;
+      //   const secondName = b.textContent as string;
+      //   return firstName.localeCompare(secondName);
+      // });
+
+      // bookLinkArr.forEach((element) => {
+      //   $menuSpellbooksUl.appendChild(element);
+      // });
+
+      reSortSpellbookLinks();
     }
 
     writeData();

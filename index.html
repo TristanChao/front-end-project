@@ -36,7 +36,7 @@
     </header>
     <main>
       <!-- MENU -->
-      <dialog id="menu-dialog">
+      <dialog id="menu-dialog" class="with-collision-div">
         <div class="collision-div">
           <button id="close-menu-btn">
             <i class="fa-solid fa-bars"></i>
@@ -84,17 +84,15 @@
             </div>
           </div>
         </dialog>
-        <dialog id="delete-confirmation-dialog" class="with-collision-div">
-          <div class="collision-div">
-            <p>
-              Are you sure you want to delete
-              <span id="confirm-delete-spellbook-name-span"></span>
-              ?
-            </p>
-            <div class="row justify-sb">
-              <button id="cancel-delete-btn">Cancel</button>
-              <button id="confirm-delete-btn">Delete</button>
-            </div>
+        <dialog id="confirm-delete-dialog">
+          <p>
+            Are you sure you want to delete
+            <span id="confirm-delete-spellbook-name-span"></span>
+            ?
+          </p>
+          <div class="row justify-sb">
+            <button id="cancel-delete-btn">Cancel</button>
+            <button id="confirm-delete-btn">Delete</button>
           </div>
         </dialog>
         <div id="spells-list-sort-search-filter-div">

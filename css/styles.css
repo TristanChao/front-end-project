@@ -19,6 +19,10 @@ button {
   font-family: Quattrocento, 'Times New Roman', Times, serif;
 }
 
+dialog {
+  border: 2px solid #acacac;
+}
+
 button:hover {
   cursor: pointer;
 }
@@ -339,6 +343,25 @@ a:hover {
 #spellbook-settings-dialog button {
   font-size: 20px;
   margin-bottom: 15px;
+}
+
+#confirm-delete-dialog p {
+  font-size: 18px;
+}
+
+#confirm-delete-dialog button {
+  font-size: 16px;
+  padding: 5px 10px;
+  border: none;
+  color: white;
+}
+
+#cancel-delete-btn {
+  background-color: #333;
+}
+
+#confirm-delete-btn {
+  background-color: #f00;
 }
 
 /* SPELL DETAILS VIEW */
