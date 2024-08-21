@@ -690,7 +690,7 @@ $spellbookForm.addEventListener('submit', async (event) => {
     event.preventDefault();
     let name;
     if (!$spellbookNameInput.value) {
-      name = 'New Spellbook ' + spellbookData.nextSpellbookId.toString();
+      name = 'Spellbook ' + spellbookData.nextSpellbookId.toString();
     } else {
       name = $spellbookNameInput.value;
     }
