@@ -109,7 +109,7 @@ const $menuAllSpellsAnchor = document.querySelector('#menu-all-spells-anchor');
 const $menuNewSpellbookAnchor = document.querySelector(
   '#menu-new-spellbook-anchor',
 );
-const $menuSpellbooksDiv = document.querySelector('#menu-spellbooks-div');
+const $menuSpellbooksUl = document.querySelector('#menu-spellbooks-ul');
 if (!$menuBtn) throw new Error('$menuBtn query failed');
 if (!$menuDialog) throw new Error('$menuDialog query failed');
 if (!$collisionDiv) throw new Error('$collisionDiv query failed');
@@ -117,20 +117,20 @@ if (!$closeMenuBtn) throw new Error('$closeMenuBtn query failed');
 if (!$menuAllSpellsAnchor) throw new Error('$menuAllSpellsAnchor query failed');
 if (!$menuNewSpellbookAnchor)
   throw new Error('$menuNewSpellbookAnchor query failed');
-if (!$menuSpellbooksDiv) throw new Error('$menuSpellbooksDiv query failed');
+if (!$menuSpellbooksUl) throw new Error('$menuSpellbooksUl query failed');
 function renderSpellbookLink(bookName, bookId) {
-  const $div = document.createElement('div');
-  $div.className = 'spellbook-link-div';
+  const $li = document.createElement('li');
+  $li.className = 'spellbook-link-li';
   const $anchor = document.createElement('a');
   $anchor.className = 'spellbook-link';
   $anchor.textContent = bookName;
   $anchor.setAttribute('data-id', bookId.toString());
-  $div.appendChild($anchor);
-  return $div;
+  $li.appendChild($anchor);
+  return $li;
 }
 spellbookData.spellbooks.forEach((element) => {
   const $bookLink = renderSpellbookLink(element.name, element.id);
-  $menuSpellbooksDiv.appendChild($bookLink);
+  $menuSpellbooksUl.appendChild($bookLink);
 });
 $menuBtn.addEventListener('click', () => {
   $menuDialog.showModal();
@@ -156,7 +156,7 @@ $menuNewSpellbookAnchor.addEventListener('click', () => {
   swapViews('spellbook form');
   $menuDialog.close();
 });
-$menuSpellbooksDiv.addEventListener('click', (event) => {
+$menuSpellbooksUl.addEventListener('click', (event) => {
   const $target = event.target;
   if (!$target.matches('.spellbook-link')) {
     return;
@@ -825,15 +825,15 @@ $spellbookForm.addEventListener('submit', async (event) => {
     $classLevelGroup.classList.add('hidden');
     $abilityModGroup.classList.add('hidden');
     const $bookLink = renderSpellbookLink(newSpellbook.name, newSpellbook.id);
-    $menuSpellbooksDiv.appendChild($bookLink);
-    const bookLinkArr = Array.from($menuSpellbooksDiv.children);
+    $menuSpellbooksUl.appendChild($bookLink);
+    const bookLinkArr = Array.from($menuSpellbooksUl.children);
     bookLinkArr.sort((a, b) => {
       const firstName = a.textContent;
       const secondName = b.textContent;
       return firstName.localeCompare(secondName);
     });
     bookLinkArr.forEach((element) => {
-      $menuSpellbooksDiv.appendChild(element);
+      $menuSpellbooksUl.appendChild(element);
     });
     toSpellbook(newSpellbook.name);
   } catch (err) {
