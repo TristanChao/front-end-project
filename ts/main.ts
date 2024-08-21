@@ -254,11 +254,22 @@ interface AllSpells {
   results: GeneralSpell[];
 }
 
+interface Sorting {
+  spellbook: null | string;
+  sort: string;
+  filter: {
+    name: string;
+    level: number;
+    school: string;
+  };
+}
+
 let spellData: AllSpells;
 
 const cardsArray: HTMLDivElement[] = [];
 
-const cardSort = {
+const cardSort: Sorting = {
+  spellbook: null,
   sort: 'name',
   filter: {
     name: '',
@@ -439,12 +450,30 @@ async function filterSpellsList(): Promise<void> {
       filteredSpellNames.push(element.name);
     });
 
+    let spellbookViewing: Spellbook;
+    const spellbookSpellNames: string[] = [];
+    if (cardSort.spellbook) {
+      spellbookViewing = spellbookData.spellbooks.find(
+        (book) => book.name === cardSort.spellbook,
+      ) as Spellbook;
+      spellbookViewing.spells.forEach((element) => {
+        spellbookSpellNames.push(element);
+      });
+    }
+
     // loops through the card array and shows or hides depending if its name
     // is included in the array of names
     cardsArray.forEach((element: HTMLDivElement) => {
       const elementName = element.getAttribute('data-name') as string;
       if (!elementName) return;
-      if (filteredSpellNames.includes(elementName)) {
+      if (cardSort.spellbook) {
+        if (
+          filteredSpellNames.includes(elementName) &&
+          spellbookSpellNames.includes(elementName)
+        ) {
+          element.classList.remove('hidden');
+        }
+      } else if (filteredSpellNames.includes(elementName)) {
         element.classList.remove('hidden');
       } else {
         element.classList.add('hidden');

@@ -203,6 +203,7 @@ function levelNumberToString(level) {
 let spellData;
 const cardsArray = [];
 const cardSort = {
+  spellbook: null,
   sort: 'name',
   filter: {
     name: '',
@@ -351,12 +352,29 @@ async function filterSpellsList() {
     filteredSpellData.results.forEach((element) => {
       filteredSpellNames.push(element.name);
     });
+    let spellbookViewing;
+    const spellbookSpellNames = [];
+    if (cardSort.spellbook) {
+      spellbookViewing = spellbookData.spellbooks.find(
+        (book) => book.name === cardSort.spellbook,
+      );
+      spellbookViewing.spells.forEach((element) => {
+        spellbookSpellNames.push(element);
+      });
+    }
     // loops through the card array and shows or hides depending if its name
     // is included in the array of names
     cardsArray.forEach((element) => {
       const elementName = element.getAttribute('data-name');
       if (!elementName) return;
-      if (filteredSpellNames.includes(elementName)) {
+      if (cardSort.spellbook) {
+        if (
+          filteredSpellNames.includes(elementName) &&
+          spellbookSpellNames.includes(elementName)
+        ) {
+          element.classList.remove('hidden');
+        }
+      } else if (filteredSpellNames.includes(elementName)) {
         element.classList.remove('hidden');
       } else {
         element.classList.add('hidden');
