@@ -7,6 +7,10 @@
   justify-content: space-between;
 }
 
+.align-center {
+  align-items: center;
+}
+
 .hidden {
   display: none;
 }
@@ -17,4 +21,19 @@
 
 .hidden-4-col {
   display: none;
+}
+
+.collision-div {
+  padding: 20px 16px;
+  height: 100%;
+  position: relative;
+}
+
+.with-collision-div {
+  padding: 0;
+}
+
+.btn-as-anchor {
+  border: none;
+  background-color: transparent;
 }

@@ -37,7 +37,7 @@
     <main>
       <!-- MENU -->
       <dialog id="menu-dialog">
-        <div id="collision-div">
+        <div class="collision-div">
           <button id="close-menu-btn">
             <i class="fa-solid fa-bars"></i>
           </button>
@@ -55,10 +55,48 @@
       </dialog>
       <!-- SPELLS LIST VIEW -->
       <div id="spells-list-view" class="view">
-        <div id="spells-list-header-container" class="row">
-          <h1 id="spells-list-header">Spells List</h1>
-          <h1 id="spellbook-class-level-header" class="hidden-4-col"></h1>
+        <div class="row justify-sb align-center">
+          <div id="spells-list-header-container" class="row">
+            <h1 id="spells-list-header">Spells List</h1>
+            <h1 id="spellbook-class-level-header" class="hidden-4-col"></h1>
+          </div>
+          <button id="spellbook-settings-btn" class="hidden">
+            <i class="fa-solid fa-gear"></i>
+          </button>
         </div>
+        <dialog id="spellbook-settings-dialog" class="with-collision-div">
+          <div class="collision-div">
+            <div>
+              <button id="edit-spellbook-btn" class="btn-as-anchor">
+                Edit Spellbook
+              </button>
+            </div>
+            <div>
+              <button id="delete-spellbook-btn" class="btn-as-anchor">
+                Delete Spellbook
+              </button>
+            </div>
+            <div>
+              <button id="close-spellbook-settings-btn" class="btn-as-anchor">
+                <i class="fa-solid fa-xmark"></i>
+                Close
+              </button>
+            </div>
+          </div>
+        </dialog>
+        <dialog id="delete-confirmation-dialog" class="with-collision-div">
+          <div class="collision-div">
+            <p>
+              Are you sure you want to delete
+              <span id="confirm-delete-spellbook-name-span"></span>
+              ?
+            </p>
+            <div class="row justify-sb">
+              <button id="cancel-delete-btn">Cancel</button>
+              <button id="confirm-delete-btn">Delete</button>
+            </div>
+          </div>
+        </dialog>
         <div id="spells-list-sort-search-filter-div">
           <label id="spells-list-sort-label" for="spells-list-sort-dropdown">
             Sort by:
@@ -186,7 +224,7 @@
 
       <!-- SPELLBOOK CREATE/EDIT FORM VIEW -->
       <div id="spellbook-form-view" class="view hidden">
-        <h1>New Spellbook</h1>
+        <h1 id="spellbook-form-header">New Spellbook</h1>
         <form id="spellbook-form">
           <div class="spellbook-form-group">
             <div>
