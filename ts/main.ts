@@ -20,6 +20,43 @@ function swapViews(view: string): void {
   }
 }
 
+async function toSpellsList(): Promise<void> {
+  try {
+    cardSort.spellbook = null;
+    await filterSpellsList();
+    $spellsListHeader.textContent = 'Spells List';
+    $spellbookClassLevelHeader.textContent = '';
+    resetFilter();
+    swapViews('spells list');
+  } catch (err) {
+    console.error('Error:', err);
+  }
+}
+
+async function toSpellbook(bookName: string): Promise<void> {
+  try {
+    cardSort.spellbook = bookName;
+    await filterSpellsList();
+    $spellsListHeader.textContent = bookName;
+    const spellbook = spellbookData.spellbooks.find(
+      (book) => book.name === bookName,
+    );
+    let className = spellbook?.class;
+    const classLevel = spellbook?.classLevel?.toString();
+    if (className) {
+      const firstLetter = className.charAt(0).toUpperCase();
+      const remainingLetters = className.substring(1);
+      className = firstLetter + remainingLetters;
+      $spellbookClassLevelHeader.textContent =
+        '- ' + className + ' Lvl ' + classLevel;
+    }
+    resetFilter();
+    swapViews('spells list');
+  } catch (err) {
+    console.error('Error:', err);
+  }
+}
+
 function classSpellAccess(className: string, classLevel: number): number {
   if (
     className === 'cleric' ||
@@ -65,10 +102,11 @@ if (!$navbarNewSpellbookBtn)
   throw new Error('$navbarNewSpellbookBtn query failed');
 
 $navbarSpellsListViewAnchor.addEventListener('click', () => {
-  swapViews('spells list');
+  toSpellsList();
 });
 
 $navbarNewSpellbookBtn.addEventListener('click', () => {
+  $spellbookForm.reset();
   swapViews('spellbook form');
 });
 
@@ -83,6 +121,9 @@ const $collisionDiv = document.querySelector(
 const $closeMenuBtn = document.querySelector(
   '#close-menu-btn',
 ) as HTMLButtonElement;
+const $menuAllSpellsAnchor = document.querySelector(
+  '#menu-all-spells-anchor',
+) as HTMLAnchorElement;
 const $menuNewSpellbookAnchor = document.querySelector(
   '#menu-new-spellbook-anchor',
 ) as HTMLButtonElement;
@@ -94,6 +135,7 @@ if (!$menuBtn) throw new Error('$menuBtn query failed');
 if (!$menuDialog) throw new Error('$menuDialog query failed');
 if (!$collisionDiv) throw new Error('$collisionDiv query failed');
 if (!$closeMenuBtn) throw new Error('$closeMenuBtn query failed');
+if (!$menuAllSpellsAnchor) throw new Error('$menuAllSpellsAnchor query failed');
 if (!$menuNewSpellbookAnchor)
   throw new Error('$menuNewSpellbookAnchor query failed');
 if (!$menuSpellbooksDiv) throw new Error('$menuSpellbooksDiv query failed');
@@ -135,9 +177,25 @@ $closeMenuBtn.addEventListener('click', () => {
   $menuDialog.close();
 });
 
+$menuAllSpellsAnchor.addEventListener('click', () => {
+  toSpellsList();
+  $menuDialog.close();
+});
+
 $menuNewSpellbookAnchor.addEventListener('click', () => {
+  $spellbookForm.reset();
   swapViews('spellbook form');
   $menuDialog.close();
+});
+
+$menuSpellbooksDiv.addEventListener('click', (event: Event) => {
+  const $target = event.target as HTMLElement;
+  if (!$target.matches('.spellbook-link')) {
+    return;
+  }
+  if (!$target.textContent) return;
+  $menuDialog.close();
+  toSpellbook($target.textContent);
 });
 
 // SPELLS LIST ================================================================
@@ -146,9 +204,12 @@ $menuNewSpellbookAnchor.addEventListener('click', () => {
 const $spellsListView = document.querySelector(
   '#spells-list-view',
 ) as HTMLDivElement;
-const $spellsListCardsDiv = document.querySelector(
-  '#spells-list-cards-div',
-) as HTMLDivElement;
+const $spellsListHeader = document.querySelector(
+  '#spells-list-header',
+) as HTMLHeadingElement;
+const $spellbookClassLevelHeader = document.querySelector(
+  '#spellbook-class-level-header',
+) as HTMLHeadingElement;
 const $spellsListSortDropdown = document.querySelector(
   '#spells-list-sort-dropdown',
 ) as HTMLSelectElement;
@@ -182,8 +243,17 @@ const $spellsListFilterLevelSelect = document.querySelector(
 const $spellsListFilterSchoolSelect = document.querySelector(
   '#spells-list-filter-school-select',
 ) as HTMLSelectElement;
+const $spellsListCardsDiv = document.querySelector(
+  '#spells-list-cards-div',
+) as HTMLDivElement;
+const $noSpellsP = document.querySelector(
+  '#no-spells-p',
+) as HTMLParagraphElement;
 
 if (!$spellsListView) throw new Error('$spellsListView query failed');
+if (!$spellsListHeader) throw new Error('$spellsListHeader query failed');
+if (!$spellbookClassLevelHeader)
+  throw new Error('$spellbookClassLevelHeader query failed');
 if (!$spellsListCardsDiv) throw new Error('$spellsListCardsDiv query failed');
 if (!$spellsListSortDropdown)
   throw new Error('$spellsListSortDropdown query failed');
@@ -204,6 +274,7 @@ if (!$spellsListFilterLevelSelect)
   throw new Error('$spellsListFilterLevelSelect query failed');
 if (!$spellsListFilterSchoolSelect)
   throw new Error('$spellsListFilterSchoolSelect query failed');
+if (!$noSpellsP) throw new Error('$noSpellsP query failed');
 
 // generates random spell circle url
 function randomSpellCircleColor(): string {
@@ -240,6 +311,17 @@ function levelNumberToString(level: number): string {
     default:
       return level.toString() + 'th';
   }
+}
+
+function resetFilter(): void {
+  cardSort.filter = {
+    name: '',
+    level: -1,
+    school: '',
+  };
+  $spellsListFilterForm.reset();
+  $spellsListSearchSortForm.reset();
+  filterSpellsList();
 }
 
 interface GeneralSpell {
@@ -405,13 +487,7 @@ $spellsListSearchSortForm.addEventListener('submit', (event: Event) => {
   cardSort.filter.name = $spellsListSearchInput.value;
   $spellsListFilterNameInput.value = cardSort.filter.name;
 
-  if ($spellsListSearchInput.value) {
-    filterSpellsList();
-  } else {
-    for (let i = 0; i < cardsArray.length; i++) {
-      cardsArray[i].classList.remove('hidden');
-    }
-  }
+  filterSpellsList();
 });
 
 // event listener for when the 'filter' button is clicked
@@ -436,15 +512,27 @@ async function filterSpellsList(): Promise<void> {
     if (cardSort.filter.school) {
       apiFilterUrl += `&school=${cardSort.filter.school}`;
     }
-    const response = await fetch(
-      `https://www.dnd5eapi.co/api/spells${apiFilterUrl}`,
-    );
 
-    if (!response.ok) throw new Error(`Fetch error status: ${response.status}`);
+    let filteredSpellData: AllSpells;
 
-    // gets the API response as an object, then loops through to append all
-    // the spell names to a new array
-    const filteredSpellData = (await response.json()) as AllSpells;
+    // checks if the filter url has any arguments
+    // if it doesn't sets the filtered spells as all spells
+    // if it does it will query the api and set the response to filtered spells
+    if (apiFilterUrl === '?') {
+      filteredSpellData = spellData;
+    } else {
+      const response = await fetch(
+        `https://www.dnd5eapi.co/api/spells${apiFilterUrl}`,
+      );
+
+      if (!response.ok)
+        throw new Error(`Fetch error status: ${response.status}`);
+
+      filteredSpellData = await response.json();
+    }
+
+    // loops through the filtered spells object and stores all the names in
+    // a new array
     const filteredSpellNames: string[] = [];
     filteredSpellData.results.forEach((element) => {
       filteredSpellNames.push(element.name);
@@ -472,6 +560,8 @@ async function filterSpellsList(): Promise<void> {
           spellbookSpellNames.includes(elementName)
         ) {
           element.classList.remove('hidden');
+        } else {
+          element.classList.add('hidden');
         }
       } else if (filteredSpellNames.includes(elementName)) {
         element.classList.remove('hidden');
@@ -479,6 +569,20 @@ async function filterSpellsList(): Promise<void> {
         element.classList.add('hidden');
       }
     });
+
+    let allHidden = true;
+    for (let i = 0; i < cardsArray.length; i++) {
+      if (!cardsArray[i].classList.contains('hidden')) {
+        allHidden = false;
+        break;
+      }
+    }
+
+    if (allHidden) {
+      $noSpellsP.classList.remove('hidden');
+    } else {
+      $noSpellsP.classList.add('hidden');
+    }
   } catch (err) {
     console.error('Error:', err);
   }
@@ -494,9 +598,7 @@ $clearFilterBtn.addEventListener('click', () => {
     level: -1,
     school: '',
   };
-  for (let i = 0; i < cardsArray.length; i++) {
-    cardsArray[i].classList.remove('hidden');
-  }
+  filterSpellsList();
   $spellsListFilterDialog.close();
 });
 
@@ -810,7 +912,7 @@ $spellDetailsBackAnchor.addEventListener('click', () => {
   swapViews('spells list');
 });
 
-// SPELLBOOK FORM VIEW ========================================================
+// SPELLBOOK FORM =============================================================
 // ============================================================================
 
 const $spellbookFormView = document.querySelector(
@@ -846,6 +948,9 @@ const $autofillGroupDiv = document.querySelector(
 const $autofillSpellsCheckbox = document.querySelector(
   '#autofill-spells-checkbox',
 ) as HTMLInputElement;
+const $spellbookFormCancelBtn = document.querySelector(
+  '#spellbook-form-cancel-btn',
+) as HTMLButtonElement;
 
 if (!$spellbookFormView) throw new Error('$spellbookFormView query failed');
 if (!$spellbookForm) throw new Error('$spellbookForm query failed');
@@ -859,6 +964,8 @@ if (!$abilityModSelect) throw new Error('$abilityModSelect query failed');
 if (!$autofillGroupDiv) throw new Error('$autofillGroupDiv query failed');
 if (!$autofillSpellsCheckbox)
   throw new Error('$autofillSpellsCheckbox query failed');
+if (!$spellbookFormCancelBtn)
+  throw new Error('$spellbookFormCancelBtn query failed');
 
 const classAbilities: object = {
   bard: 'Charisma',
@@ -951,6 +1058,8 @@ $spellbookForm.addEventListener('submit', async (event: Event) => {
     bookLinkArr.forEach((element) => {
       $menuSpellbooksDiv.appendChild(element);
     });
+
+    toSpellbook(newSpellbook.name);
   } catch (err) {
     console.error('Error:', err);
   }
@@ -981,3 +1090,9 @@ async function getClassSpells(
     console.error('Error:', err);
   }
 }
+
+$spellbookFormCancelBtn.addEventListener('click', () => {
+  $spellbookForm.reset();
+  cardSort.spellbook = null;
+  swapViews('spells list');
+});

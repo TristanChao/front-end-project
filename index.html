@@ -25,7 +25,7 @@
           <a id="navbar-spells-list-view-anchor">All Spells</a>
         </div>
         <div id="navbar-spellbook-menu-div">
-          <button id="navbar-new-spellbook-btn" class="hidden">
+          <button id="navbar-new-spellbook-btn" class="hidden-4-col">
             + New Spellbook
           </button>
           <button id="menu-btn">
@@ -55,7 +55,10 @@
       </dialog>
       <!-- SPELLS LIST VIEW -->
       <div id="spells-list-view" class="view">
-        <h1>Spells List</h1>
+        <div id="spells-list-header-container" class="row">
+          <h1 id="spells-list-header">Spells List</h1>
+          <h1 id="spellbook-class-level-header" class="hidden-4-col"></h1>
+        </div>
         <div id="spells-list-sort-search-filter-div">
           <label id="spells-list-sort-label" for="spells-list-sort-dropdown">
             Sort by:
@@ -117,6 +120,7 @@
             </div>
           </form>
         </dialog>
+        <p id="no-spells-p" class="hidden">Nothing to see here</p>
         <div id="spells-list-cards-div" class="row"></div>
       </div>
 

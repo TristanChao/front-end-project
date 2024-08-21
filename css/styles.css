@@ -153,6 +153,10 @@ a:hover {
   padding-left: 20px;
 }
 
+#spells-list-header {
+  margin-right: 8px;
+}
+
 #spells-list-sort-search-filter-div {
   margin-bottom: 20px;
 }
@@ -244,6 +248,10 @@ a:hover {
   border: none;
   color: white;
   background-color: #f00;
+}
+
+#no-spells-p {
+  text-align: center;
 }
 
 #spells-list-cards-div {
@@ -425,7 +433,7 @@ a:hover {
 
 /* MEDIA AT RULES */
 
-@media (width >= 420px) {
+@media (width >= 460px) {
   #navbar-spells-list-view-anchor {
     display: inline;
   }
@@ -450,7 +458,7 @@ a:hover {
     width: 700px;
   }
 
-  #navbar-new-spellbook-btn {
+  .hidden-4-col {
     display: inline-block;
   }
 }
