@@ -58,6 +58,8 @@ async function toSpellbook(bookName, bookId) {
       className = firstLetter + remainingLetters;
       $spellbookClassLevelHeader.textContent =
         '- ' + className + ' Lvl ' + classLevel;
+    } else {
+      $spellbookClassLevelHeader.textContent = '';
     }
     resetFilter();
     $spellbookSettingsBtn.classList.remove('hidden');
@@ -382,7 +384,11 @@ $editSpellbookBtn.addEventListener('click', () => {
   const editing = spellbookData.editing;
   $spellbookFormHeader.textContent = 'Edit ' + editing.name;
   $spellbookNameInput.value = spellbookData.editing.name;
-  if (editing.class && editing.classLevel && editing.modifier) {
+  if (
+    editing.class &&
+    editing.classLevel &&
+    (editing.modifier || editing.modifier === 0)
+  ) {
     $classSelect.value = editing.class;
     $classLevelGroup.classList.remove('hidden');
     $classLevelSelect.value = editing.classLevel.toString();
@@ -943,17 +949,6 @@ $spellbookForm.addEventListener('submit', async (event) => {
       spellbookData.spellbooks.push(newSpellbook);
       const $bookLink = renderSpellbookLink(newSpellbook.name, newSpellbook.id);
       $menuSpellbooksUl.appendChild($bookLink);
-      // const bookLinkArr = Array.from(
-      //   $menuSpellbooksUl.children,
-      // ) as HTMLDivElement[];
-      // bookLinkArr.sort((a, b) => {
-      //   const firstName = a.textContent as string;
-      //   const secondName = b.textContent as string;
-      //   return firstName.localeCompare(secondName);
-      // });
-      // bookLinkArr.forEach((element) => {
-      //   $menuSpellbooksUl.appendChild(element);
-      // });
       reSortSpellbookLinks();
     }
     writeData();
