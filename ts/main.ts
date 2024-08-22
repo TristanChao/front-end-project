@@ -385,7 +385,7 @@ function renderCard(
   $card.setAttribute('data-level', spellLevel.toString());
 
   const $topDiv = document.createElement('div');
-  $topDiv.className = 'card-top-div';
+  $topDiv.className = 'card-top-div row justify-sb';
 
   const $levelSpan = document.createElement('span');
   $levelSpan.className = 'card-level-span';
@@ -426,6 +426,7 @@ function renderCard(
 
   $card.appendChild($topDiv);
   $topDiv.appendChild($levelSpan);
+  $topDiv.appendChild($toggleIncludeBtn);
   $card.appendChild($spellCircleDiv);
   $spellCircleDiv.appendChild($spellCircleImg);
   $card.appendChild($nameDiv);
@@ -559,6 +560,88 @@ $closeSpellbookSettingsBtn.addEventListener('click', () => {
 });
 
 // SPELLBOOK MANAGEMENT =======================================================
+
+const $spellbookManageSpellsBtn = document.querySelector(
+  '#spellbook-manage-spells-btn',
+) as HTMLButtonElement;
+const $spellbookManageSaveBtn = document.querySelector(
+  '#spellbook-manage-save-btn',
+) as HTMLButtonElement;
+const $spellbookSettingsManageSpellsBtn = document.querySelector(
+  '#spellbook-settings-manage-spells-btn',
+) as HTMLButtonElement;
+
+if (!$spellbookManageSpellsBtn)
+  throw new Error('$spellbookManageSpellsBtn query failed');
+if (!$spellbookManageSaveBtn)
+  throw new Error('$spellbookManageSaveBtn query failed');
+if (!$spellbookSettingsManageSpellsBtn)
+  throw new Error('$spellbookSettingsManageSpellsBtn query failed');
+
+async function handleManageSpellsClick(): Promise<void> {
+  try {
+    $spellbookManageSpellsBtn.classList.add('hidden');
+    $spellbookSettingsBtn.classList.add('hidden');
+    $spellbookManageSaveBtn.classList.remove('hidden');
+    resetFilter();
+    cardSort.sort = 'level';
+    cardSort.managing = cardSort.spellbook;
+    cardSort.spellbook = null;
+    cardsArray.forEach((element) => {
+      const elementName = element.getAttribute('data-name') as string;
+      const managing = spellbookData.spellbooks.find(
+        (book) => book.id === cardSort.managing?.id,
+      );
+
+      if (!managing)
+        throw new Error(
+          'handleManageSpellsClick managing variable not defined',
+        );
+
+      const $toggleIncludeBtn = element.querySelector(
+        '.toggle-include',
+      ) as HTMLButtonElement;
+
+      if (!$toggleIncludeBtn)
+        throw new Error(
+          'handleManageSpellsClick() $toggleIncludeBtn query failed',
+        );
+
+      $toggleIncludeBtn.classList.remove('hidden');
+
+      if (!managing.spells.includes(elementName)) {
+        const $spellCircle = element.querySelector('img') as HTMLImageElement;
+
+        if (!$spellCircle)
+          throw new Error(
+            'handleManageSpellsClick() $spellCircle query failed',
+          );
+
+        $spellCircle.classList.add('dark');
+      } else {
+        $toggleIncludeBtn.classList.replace('add', 'remove');
+      }
+    });
+
+    $spellbookSettingsDialog.close();
+    await filterSpellsList();
+  } catch (err) {
+    console.error('Error:', err);
+  }
+}
+
+$spellbookManageSpellsBtn.addEventListener('click', async () => {
+  await handleManageSpellsClick();
+});
+$spellbookSettingsManageSpellsBtn.addEventListener('click', async () => {
+  try {
+    console.log('click');
+    $spellbookSettingsDialog.close();
+    await handleManageSpellsClick();
+  } catch (err) {
+    console.error('Error:', err);
+  }
+});
 
 // SEARCH/SORT/FILTER =========================================================
 
@@ -715,7 +798,7 @@ async function filterSpellsList(): Promise<void> {
     if (cardSort.managing) {
       if (managingClass) {
         const response = await fetch(
-          `https://www.dnd5eapi.co/classes/${managingClass}/spells`,
+          `https://www.dnd5eapi.co/api/classes/${managingClass}/spells`,
         );
         if (!response.ok) throw new Error(`Fetch error: ${response.status}`);
         const classSpellsObj = (await response.json()) as AllSpells;
@@ -723,10 +806,11 @@ async function filterSpellsList(): Promise<void> {
           classSpellNames.push(element.name);
         });
       }
-
+      console.log('cardSort:', cardSort);
       spellbookViewing = spellbookData.spellbooks.find(
-        (book) => book.name === cardSort.spellbook?.name,
+        (book) => book.name === cardSort.managing?.name,
       ) as Spellbook;
+      console.log('spellbookViewing:', spellbookViewing);
       spellbookViewing.spells.forEach((element) => {
         spellbookSpellNames.push(element);
       });

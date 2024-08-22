@@ -55,12 +55,13 @@
       </dialog>
       <!-- SPELLS LIST VIEW -->
       <div id="spells-list-view" class="view">
+        <!-- Heading and Heading-Level Buttons -->
         <div class="row justify-sb align-center">
           <div id="spells-list-header-container" class="row">
             <h1 id="spells-list-header">Spells List</h1>
             <h1 id="spellbook-class-level-header" class="hidden-4-col"></h1>
           </div>
-          <div>
+          <div class="mr-20">
             <button id="spellbook-manage-spells-btn" class="hidden black-btn">
               Manage Spells
             </button>
@@ -72,6 +73,7 @@
             </button>
           </div>
         </div>
+        <!-- Spellbook Settings -->
         <dialog id="spellbook-settings-dialog" class="with-collision-div">
           <div class="collision-div">
             <div>
@@ -110,6 +112,7 @@
             <button id="confirm-delete-btn" class="red-btn">Delete</button>
           </div>
         </dialog>
+        <!-- Sort, Search, and Filter -->
         <div id="spells-list-sort-search-filter-div">
           <label id="spells-list-sort-label" for="spells-list-sort-dropdown">
             Sort by:
@@ -182,6 +185,7 @@
             </div>
           </form>
         </dialog>
+        <!-- Spell Cards -->
         <p id="no-spells-p" class="hidden">Nothing to see here</p>
         <div id="spells-list-cards-div" class="row"></div>
       </div>
