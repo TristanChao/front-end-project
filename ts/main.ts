@@ -393,7 +393,6 @@ function renderCard(
 
   const $toggleIncludeBtn = document.createElement('button');
   $toggleIncludeBtn.className = 'toggle-include add hidden';
-  $toggleIncludeBtn.setAttribute('data-include', '');
 
   const $toggleIncludeIcon = document.createElement('i');
   $toggleIncludeIcon.className = 'fa-solid fa-plus';
@@ -1051,37 +1050,65 @@ $spellsListCardsDiv.addEventListener('click', async (event: Event) => {
     const $target = event.target as HTMLElement;
     const $targetCard = $target.closest('div.card') as HTMLDivElement;
 
-    if (
-      ($target.matches('.toggle-include') ||
-        $target.matches('.toggle-include i')) &&
-      cardSort.managing
-    ) {
+    let $targetBtn: HTMLButtonElement | null;
+    let $targetIcon: HTMLElement | null;
+
+    if ($target.matches('i')) {
+      $targetBtn = $target.closest('.toggle-include');
+      $targetIcon = event.target as HTMLElement;
+    } else if ($target.matches('.toggle-include')) {
+      $targetBtn = event.target as HTMLButtonElement;
+      $targetIcon = $targetBtn.children[0] as HTMLElement;
+    } else {
+      $targetBtn = null;
+      $targetIcon = null;
+    }
+
+    if ($targetBtn && $targetIcon && cardSort.managing) {
       const currentSpellbookSpells = spellbookData.spellbooks[
         indexOfSpellbookById(cardSort.managing.id)
       ].spells as string[];
+
+      // console.log('currentSpellbookSpells before:', currentSpellbookSpells);
 
       const $spellCircle = $targetCard.querySelector('img') as HTMLImageElement;
       if (!$spellCircle)
         throw new Error('card div click event $spellCircle query failed');
 
-      const toggleState = $target.getAttribute('data-include') as string;
-
       const spellName = $targetCard.getAttribute('data-name') as string;
 
-      if (toggleState) {
-        $target.classList.replace('remove', 'add');
+      const included = currentSpellbookSpells.includes(spellName);
+
+      console.log('included:', included);
+      console.log('spellName:', spellName);
+
+      if (included) {
+        $targetBtn.classList.replace('remove', 'add');
+        console.log(
+          'remove',
+          spellName,
+          'at',
+          currentSpellbookSpells.indexOf(spellName),
+        );
         currentSpellbookSpells.splice(
           currentSpellbookSpells.indexOf(spellName),
           1,
         );
         $spellCircle.classList.replace('light', 'dark');
+      } else {
+        $targetBtn.classList.replace('add', 'remove');
+        $spellCircle.classList.replace('dark', 'light');
+        currentSpellbookSpells.push(spellName);
+        currentSpellbookSpells.sort();
       }
+
+      writeData();
     } else if ($targetCard) {
       const cardSpellUrl = $targetCard.getAttribute('data-url');
 
-      $spellsListView.classList.add('hidden');
-
       if (!cardSpellUrl) throw new Error('cardSpellUrl does not exist');
+
+      $spellsListView.classList.add('hidden');
 
       await getSpellDetails(cardSpellUrl);
 
