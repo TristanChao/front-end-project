@@ -165,6 +165,8 @@ a:hover {
   padding-left: 20px;
 }
 
+/* Top Stuff */
+
 #spells-list-header {
   margin-right: 8px;
 }
@@ -175,6 +177,13 @@ a:hover {
   font-size: 18px;
   padding-top: 5px;
 }
+
+#spellbook-manage-save-btn {
+  font-size: 24px;
+  padding: 5px 10px;
+}
+
+/* Sort, Search, Filter */
 
 #spells-list-sort-search-filter-div {
   margin-bottom: 20px;
@@ -247,6 +256,8 @@ a:hover {
   padding: 5px 10px;
 }
 
+/* Spell Cards */
+
 #no-spells-p {
   text-align: center;
   margin-right: 20px;
@@ -285,14 +296,17 @@ a:hover {
   border: 2px solid #f00;
   height: 25px;
   width: 25px;
+  padding: 4px 5px 2px;
 }
 
 .toggle-include.add {
   background-color: transparent;
+  color: #f00;
 }
 
 .toggle-include.remove {
   background-color: #f00;
+  color: white;
 }
 
 .card-level-span {
