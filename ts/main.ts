@@ -2,6 +2,34 @@
 
 // GLOBAL
 
+interface GeneralSpell {
+  index: string;
+  name: string;
+  level: number;
+  url: string;
+}
+
+interface AllSpells {
+  count: number;
+  results: GeneralSpell[];
+}
+
+let spellData: AllSpells;
+
+// function to query the api for the general list of all spells
+async function getAllSpellData(): Promise<void> {
+  try {
+    const response = await fetch('https://www.dnd5eapi.co/api/spells');
+    if (!response.ok)
+      throw new Error(`Fetch error. Status: ${response.status}`);
+
+    // get spellData value
+    spellData = (await response.json()) as AllSpells;
+  } catch (err) {
+    console.error('Error:', err);
+  }
+}
+
 function swapViews(view: string): void {
   $spellsListView.classList.add('hidden');
   $spellDetailsView.classList.add('hidden');
@@ -27,15 +55,16 @@ async function toSpellsList(): Promise<void> {
     $spellsListHeader.textContent = 'Spells List';
     $spellbookClassLevelHeader.textContent = '';
     resetFilter();
+    $spellbookSettingsBtn.classList.add('hidden');
     swapViews('spells list');
   } catch (err) {
     console.error('Error:', err);
   }
 }
 
-async function toSpellbook(bookName: string): Promise<void> {
+async function toSpellbook(bookName: string, bookId: number): Promise<void> {
   try {
-    cardSort.spellbook = bookName;
+    cardSort.spellbook = { name: bookName, id: bookId };
     await filterSpellsList();
     $spellsListHeader.textContent = bookName;
     const spellbook = spellbookData.spellbooks.find(
@@ -49,8 +78,11 @@ async function toSpellbook(bookName: string): Promise<void> {
       className = firstLetter + remainingLetters;
       $spellbookClassLevelHeader.textContent =
         '- ' + className + ' Lvl ' + classLevel;
+    } else {
+      $spellbookClassLevelHeader.textContent = '';
     }
     resetFilter();
+    $spellbookSettingsBtn.classList.remove('hidden');
     swapViews('spells list');
   } catch (err) {
     console.error('Error:', err);
@@ -86,6 +118,49 @@ function classSpellAccess(className: string, classLevel: number): number {
   }
 }
 
+function clickOffModalClose(
+  target: HTMLElement,
+  modal: HTMLDialogElement,
+): void {
+  if (!target.closest('.collision-div') && !target.matches('.collision-div')) {
+    modal.close();
+  }
+}
+
+function indexOfSpellbookById(id: number): number {
+  const index = spellbookData.spellbooks.indexOf(
+    spellbookData.spellbooks.find((book) => book.id === id) as Spellbook,
+  );
+  return index;
+}
+
+function reSortSpellbookLinks(): void {
+  const bookLinkArr = Array.from(
+    $menuSpellbooksUl.children,
+  ) as HTMLDivElement[];
+
+  bookLinkArr.sort((a, b) => {
+    const firstName = a.textContent as string;
+    const secondName = b.textContent as string;
+    return firstName.localeCompare(secondName);
+  });
+
+  bookLinkArr.forEach((element) => {
+    $menuSpellbooksUl.appendChild(element);
+  });
+}
+
+const classAbilities: object = {
+  bard: 'Charisma',
+  cleric: 'Wisdom',
+  druid: 'Wisdom',
+  paladin: 'Charisma',
+  ranger: 'Wisdom',
+  sorcerer: 'Charisma',
+  warlock: 'Charisma',
+  wizard: 'Intelligence',
+};
+
 // NAVBAR =====================================================================
 // ============================================================================
 
@@ -107,6 +182,9 @@ $navbarSpellsListViewAnchor.addEventListener('click', () => {
 
 $navbarNewSpellbookBtn.addEventListener('click', () => {
   $spellbookForm.reset();
+  $spellbookFormHeader.textContent = 'New Spellbook';
+  $classLevelGroup.classList.add('hidden');
+  $abilityModGroup.classList.add('hidden');
   swapViews('spellbook form');
 });
 
@@ -115,9 +193,6 @@ $navbarNewSpellbookBtn.addEventListener('click', () => {
 
 const $menuBtn = document.querySelector('#menu-btn') as HTMLButtonElement;
 const $menuDialog = document.querySelector('#menu-dialog') as HTMLDialogElement;
-const $collisionDiv = document.querySelector(
-  '#collision-div',
-) as HTMLDivElement;
 const $closeMenuBtn = document.querySelector(
   '#close-menu-btn',
 ) as HTMLButtonElement;
@@ -133,7 +208,6 @@ const $menuSpellbooksUl = document.querySelector(
 
 if (!$menuBtn) throw new Error('$menuBtn query failed');
 if (!$menuDialog) throw new Error('$menuDialog query failed');
-if (!$collisionDiv) throw new Error('$collisionDiv query failed');
 if (!$closeMenuBtn) throw new Error('$closeMenuBtn query failed');
 if (!$menuAllSpellsAnchor) throw new Error('$menuAllSpellsAnchor query failed');
 if (!$menuNewSpellbookAnchor)
@@ -165,12 +239,7 @@ $menuBtn.addEventListener('click', () => {
 
 $menuDialog.addEventListener('click', (event: Event) => {
   const $target = event.target as HTMLElement;
-  if (
-    !$target.closest('#collision-div') &&
-    !$target.matches('#collision-div')
-  ) {
-    $menuDialog.close();
-  }
+  clickOffModalClose($target, $menuDialog);
 });
 
 $closeMenuBtn.addEventListener('click', () => {
@@ -184,6 +253,9 @@ $menuAllSpellsAnchor.addEventListener('click', () => {
 
 $menuNewSpellbookAnchor.addEventListener('click', () => {
   $spellbookForm.reset();
+  $spellbookFormHeader.textContent = 'New Spellbook';
+  $classLevelGroup.classList.add('hidden');
+  $abilityModGroup.classList.add('hidden');
   swapViews('spellbook form');
   $menuDialog.close();
 });
@@ -193,9 +265,11 @@ $menuSpellbooksUl.addEventListener('click', (event: Event) => {
   if (!$target.matches('.spellbook-link')) {
     return;
   }
-  if (!$target.textContent) return;
+  const targetName = $target.textContent;
+  const targetId = Number($target.getAttribute('data-id'));
+  if (!targetName || !targetId) return;
   $menuDialog.close();
-  toSpellbook($target.textContent);
+  toSpellbook(targetName, targetId);
 });
 
 // SPELLS LIST ================================================================
@@ -210,39 +284,6 @@ const $spellsListHeader = document.querySelector(
 const $spellbookClassLevelHeader = document.querySelector(
   '#spellbook-class-level-header',
 ) as HTMLHeadingElement;
-const $spellsListSortDropdown = document.querySelector(
-  '#spells-list-sort-dropdown',
-) as HTMLSelectElement;
-const $spellsListFilterBtn = document.querySelector(
-  '#spells-list-filter-btn',
-) as HTMLButtonElement;
-const $spellsListFilterDialog = document.querySelector(
-  '#spells-list-filter-dialog',
-) as HTMLDialogElement;
-const $spellsListSearchSortForm = document.querySelector(
-  '#spells-list-search-sort-form',
-) as HTMLFormElement;
-const $spellsListSearchInput = document.querySelector(
-  '#spells-list-search-input',
-) as HTMLInputElement;
-const $cancelFilterBtn = document.querySelector(
-  '#cancel-filter-btn',
-) as HTMLButtonElement;
-const $clearFilterBtn = document.querySelector(
-  '#clear-filter-btn',
-) as HTMLButtonElement;
-const $spellsListFilterForm = document.querySelector(
-  '#spells-list-filter-form',
-) as HTMLFormElement;
-const $spellsListFilterNameInput = document.querySelector(
-  '#spells-list-filter-name-input',
-) as HTMLInputElement;
-const $spellsListFilterLevelSelect = document.querySelector(
-  '#spells-list-filter-level-select',
-) as HTMLSelectElement;
-const $spellsListFilterSchoolSelect = document.querySelector(
-  '#spells-list-filter-school-select',
-) as HTMLSelectElement;
 const $spellsListCardsDiv = document.querySelector(
   '#spells-list-cards-div',
 ) as HTMLDivElement;
@@ -255,25 +296,6 @@ if (!$spellsListHeader) throw new Error('$spellsListHeader query failed');
 if (!$spellbookClassLevelHeader)
   throw new Error('$spellbookClassLevelHeader query failed');
 if (!$spellsListCardsDiv) throw new Error('$spellsListCardsDiv query failed');
-if (!$spellsListSortDropdown)
-  throw new Error('$spellsListSortDropdown query failed');
-if (!$spellsListFilterBtn) throw new Error('$spellsListFilterBtn query failed');
-if (!$spellsListFilterDialog)
-  throw new Error('$spellsListFilterDialog query failed');
-if (!$spellsListSearchSortForm)
-  throw new Error('$spellsListSearchSortForm query failed');
-if (!$spellsListSearchInput)
-  throw new Error('$spellsListSearchInput query failed');
-if (!$cancelFilterBtn) throw new Error('$cancelFilterBtn query failed');
-if (!$clearFilterBtn) throw new Error('$clearFilterBtn query failed');
-if (!$spellsListFilterForm)
-  throw new Error('$spellsListFilterForm query failed');
-if (!$spellsListFilterNameInput)
-  throw new Error('$spellsListFilterNameInput query failed');
-if (!$spellsListFilterLevelSelect)
-  throw new Error('$spellsListFilterLevelSelect query failed');
-if (!$spellsListFilterSchoolSelect)
-  throw new Error('$spellsListFilterSchoolSelect query failed');
 if (!$noSpellsP) throw new Error('$noSpellsP query failed');
 
 // generates random spell circle url
@@ -324,20 +346,8 @@ function resetFilter(): void {
   filterSpellsList();
 }
 
-interface GeneralSpell {
-  index: string;
-  name: string;
-  level: number;
-  url: string;
-}
-
-interface AllSpells {
-  count: number;
-  results: GeneralSpell[];
-}
-
 interface Sorting {
-  spellbook: null | string;
+  spellbook: null | { name: string; id: number };
   sort: string;
   filter: {
     name: string;
@@ -345,8 +355,6 @@ interface Sorting {
     school: string;
   };
 }
-
-let spellData: AllSpells;
 
 const cardsArray: HTMLDivElement[] = [];
 
@@ -359,20 +367,6 @@ const cardSort: Sorting = {
     school: '',
   },
 };
-
-// function to query the api for the general list of all spells
-async function getAllSpellData(): Promise<void> {
-  try {
-    const response = await fetch('https://www.dnd5eapi.co/api/spells');
-    if (!response.ok)
-      throw new Error(`Fetch error. Status: ${response.status}`);
-
-    // get spellData value
-    spellData = (await response.json()) as AllSpells;
-  } catch (err) {
-    console.error('Error:', err);
-  }
-}
 
 // function that will render a spell card
 function renderCard(
@@ -448,6 +442,172 @@ async function renderAllCardsInitial(): Promise<void> {
 }
 
 renderAllCardsInitial();
+
+// SPELLBOOK SETTINGS =========================================================
+
+const $spellbookSettingsBtn = document.querySelector(
+  '#spellbook-settings-btn',
+) as HTMLButtonElement;
+const $spellbookSettingsDialog = document.querySelector(
+  '#spellbook-settings-dialog',
+) as HTMLDialogElement;
+const $editSpellbookBtn = document.querySelector(
+  '#edit-spellbook-btn',
+) as HTMLButtonElement;
+const $deleteSpellbookBtn = document.querySelector(
+  '#delete-spellbook-btn',
+) as HTMLButtonElement;
+const $closeSpellbookSettingsBtn = document.querySelector(
+  '#close-spellbook-settings-btn',
+) as HTMLButtonElement;
+
+const $confirmDeleteDialog = document.querySelector(
+  '#confirm-delete-dialog',
+) as HTMLDialogElement;
+const $confirmDeleteSpellbookNameSpan = document.querySelector(
+  '#confirm-delete-spellbook-name-span',
+) as HTMLSpanElement;
+const $cancelDeleteBtn = document.querySelector(
+  '#cancel-delete-btn',
+) as HTMLButtonElement;
+const $confirmDeleteBtn = document.querySelector(
+  '#confirm-delete-btn',
+) as HTMLButtonElement;
+
+if (!$spellbookSettingsBtn)
+  throw new Error('$spellbookSettingsBtn query failed');
+if (!$spellbookSettingsDialog)
+  throw new Error('$spellbookSettingsDialog query failed');
+if (!$editSpellbookBtn) throw new Error('$editSpellbookBtn query failed');
+if (!$deleteSpellbookBtn) throw new Error('$deleteSpellbookBtn query failed');
+if (!$closeSpellbookSettingsBtn)
+  throw new Error('$closeSpellbookSettingsBtn query failed');
+
+if (!$confirmDeleteDialog) throw new Error('$confirmDeleteDialog query failed');
+if (!$confirmDeleteSpellbookNameSpan)
+  throw new Error('$confirmDeleteSpellbookNameSpan query failed');
+if (!$cancelDeleteBtn) throw new Error('$cancelDeleteBtn query failed');
+if (!$confirmDeleteBtn) throw new Error('$confirmDeleteBtn query failed');
+
+$spellbookSettingsBtn.addEventListener('click', () => {
+  $spellbookSettingsDialog.showModal();
+});
+
+$spellbookSettingsDialog.addEventListener('click', (event: Event) => {
+  const $target = event.target as HTMLElement;
+  clickOffModalClose($target, $spellbookSettingsDialog);
+});
+
+$editSpellbookBtn.addEventListener('click', () => {
+  spellbookData.editing = spellbookData.spellbooks.find(
+    (item) => item.id === cardSort.spellbook?.id,
+  ) as Spellbook;
+
+  const editing = spellbookData.editing;
+
+  $spellbookFormHeader.textContent = 'Edit ' + editing.name;
+  $spellbookNameInput.value = spellbookData.editing.name;
+  if (
+    editing.class &&
+    editing.classLevel &&
+    (editing.modifier || editing.modifier === 0)
+  ) {
+    $classSelect.value = editing.class;
+    $classLevelGroup.classList.remove('hidden');
+    $classLevelSelect.value = editing.classLevel.toString();
+    $abilityModGroup.classList.remove('hidden');
+    $abilityModLabel.textContent =
+      classAbilities[$classSelect.value as keyof object] + ' Modifier:';
+    $abilityModSelect.value = editing.modifier.toString();
+  }
+
+  $spellbookSettingsDialog.close();
+  swapViews('spellbook form');
+});
+
+$deleteSpellbookBtn.addEventListener('click', () => {
+  $spellbookSettingsDialog.close();
+  $confirmDeleteDialog.showModal();
+});
+
+$cancelDeleteBtn.addEventListener('click', () => {
+  $confirmDeleteDialog.close();
+});
+
+$confirmDeleteBtn.addEventListener('click', () => {
+  if (!cardSort.spellbook?.id) return;
+  const deleteIndex = indexOfSpellbookById(cardSort.spellbook.id);
+  spellbookData.spellbooks.splice(deleteIndex, 1);
+
+  writeData();
+
+  $menuSpellbooksUl.children[deleteIndex].remove();
+  reSortSpellbookLinks();
+
+  $confirmDeleteDialog.close();
+  toSpellsList();
+});
+
+$closeSpellbookSettingsBtn.addEventListener('click', () => {
+  $spellbookSettingsDialog.close();
+});
+
+// SEARCH/SORT/FILTER =========================================================
+
+const $spellsListSortDropdown = document.querySelector(
+  '#spells-list-sort-dropdown',
+) as HTMLSelectElement;
+const $spellsListFilterBtn = document.querySelector(
+  '#spells-list-filter-btn',
+) as HTMLButtonElement;
+const $spellsListFilterDialog = document.querySelector(
+  '#spells-list-filter-dialog',
+) as HTMLDialogElement;
+const $spellsListSearchSortForm = document.querySelector(
+  '#spells-list-search-sort-form',
+) as HTMLFormElement;
+const $spellsListSearchInput = document.querySelector(
+  '#spells-list-search-input',
+) as HTMLInputElement;
+const $cancelFilterBtn = document.querySelector(
+  '#cancel-filter-btn',
+) as HTMLButtonElement;
+const $clearFilterBtn = document.querySelector(
+  '#clear-filter-btn',
+) as HTMLButtonElement;
+const $spellsListFilterForm = document.querySelector(
+  '#spells-list-filter-form',
+) as HTMLFormElement;
+const $spellsListFilterNameInput = document.querySelector(
+  '#spells-list-filter-name-input',
+) as HTMLInputElement;
+const $spellsListFilterLevelSelect = document.querySelector(
+  '#spells-list-filter-level-select',
+) as HTMLSelectElement;
+const $spellsListFilterSchoolSelect = document.querySelector(
+  '#spells-list-filter-school-select',
+) as HTMLSelectElement;
+
+if (!$spellsListSortDropdown)
+  throw new Error('$spellsListSortDropdown query failed');
+if (!$spellsListFilterBtn) throw new Error('$spellsListFilterBtn query failed');
+if (!$spellsListFilterDialog)
+  throw new Error('$spellsListFilterDialog query failed');
+if (!$spellsListSearchSortForm)
+  throw new Error('$spellsListSearchSortForm query failed');
+if (!$spellsListSearchInput)
+  throw new Error('$spellsListSearchInput query failed');
+if (!$cancelFilterBtn) throw new Error('$cancelFilterBtn query failed');
+if (!$clearFilterBtn) throw new Error('$clearFilterBtn query failed');
+if (!$spellsListFilterForm)
+  throw new Error('$spellsListFilterForm query failed');
+if (!$spellsListFilterNameInput)
+  throw new Error('$spellsListFilterNameInput query failed');
+if (!$spellsListFilterLevelSelect)
+  throw new Error('$spellsListFilterLevelSelect query failed');
+if (!$spellsListFilterSchoolSelect)
+  throw new Error('$spellsListFilterSchoolSelect query failed');
+if (!$noSpellsP) throw new Error('$noSpellsP query failed');
 
 // a function that will sort the cards in both the all cards array and the
 // filtered cards array
@@ -542,7 +702,7 @@ async function filterSpellsList(): Promise<void> {
     const spellbookSpellNames: string[] = [];
     if (cardSort.spellbook) {
       spellbookViewing = spellbookData.spellbooks.find(
-        (book) => book.name === cardSort.spellbook,
+        (book) => book.name === cardSort.spellbook?.name,
       ) as Spellbook;
       spellbookViewing.spells.forEach((element) => {
         spellbookSpellNames.push(element);
@@ -570,6 +730,7 @@ async function filterSpellsList(): Promise<void> {
       }
     });
 
+    // loops through the cards to check if they are all hidden
     let allHidden = true;
     for (let i = 0; i < cardsArray.length; i++) {
       if (!cardsArray[i].classList.contains('hidden')) {
@@ -578,6 +739,7 @@ async function filterSpellsList(): Promise<void> {
       }
     }
 
+    // displays a message if all the cards are hidden
     if (allHidden) {
       $noSpellsP.classList.remove('hidden');
     } else {
@@ -921,6 +1083,9 @@ const $spellbookFormView = document.querySelector(
 const $spellbookForm = document.querySelector(
   '#spellbook-form',
 ) as HTMLFormElement;
+const $spellbookFormHeader = document.querySelector(
+  '#spellbook-form-header',
+) as HTMLHeadingElement;
 const $spellbookNameInput = document.querySelector(
   '#spellbook-name-input',
 ) as HTMLInputElement;
@@ -954,6 +1119,7 @@ const $spellbookFormCancelBtn = document.querySelector(
 
 if (!$spellbookFormView) throw new Error('$spellbookFormView query failed');
 if (!$spellbookForm) throw new Error('$spellbookForm query failed');
+if (!$spellbookFormHeader) throw new Error('$spellbookFormHeader query failed');
 if (!$spellbookNameInput) throw new Error('$spellbookNameInput query failed');
 if (!$classSelect) throw new Error('$classSelect query failed');
 if (!$classLevelGroup) throw new Error('$classLevelGroup query failed');
@@ -967,17 +1133,6 @@ if (!$autofillSpellsCheckbox)
 if (!$spellbookFormCancelBtn)
   throw new Error('$spellbookFormCancelBtn query failed');
 
-const classAbilities: object = {
-  bard: 'Charisma',
-  cleric: 'Wisdom',
-  druid: 'Wisdom',
-  paladin: 'Charisma',
-  ranger: 'Wisdom',
-  sorcerer: 'Charisma',
-  warlock: 'Charisma',
-  wizard: 'Intelligence',
-};
-
 $classSelect.addEventListener('input', () => {
   if ($classSelect.value) {
     $classLevelGroup.classList.remove('hidden');
@@ -989,15 +1144,17 @@ $classSelect.addEventListener('input', () => {
 
   $autofillSpellsCheckbox.checked = false;
 
-  switch ($classSelect.value) {
-    case 'cleric':
-    case 'druid':
-    case 'paladin':
-    case 'ranger':
-      $autofillGroupDiv.classList.remove('hidden');
-      break;
-    default:
-      $autofillGroupDiv.classList.add('hidden');
+  if (!spellbookData.editing) {
+    switch ($classSelect.value) {
+      case 'cleric':
+      case 'druid':
+      case 'paladin':
+      case 'ranger':
+        $autofillGroupDiv.classList.remove('hidden');
+        break;
+      default:
+        $autofillGroupDiv.classList.add('hidden');
+    }
   }
 
   $abilityModLabel.textContent =
@@ -1015,8 +1172,14 @@ $spellbookForm.addEventListener('submit', async (event: Event) => {
       name = $spellbookNameInput.value;
     }
 
-    const id = spellbookData.nextSpellbookId;
-    spellbookData.nextSpellbookId++;
+    let id: number;
+
+    if (!spellbookData.editing) {
+      id = spellbookData.nextSpellbookId;
+      spellbookData.nextSpellbookId++;
+    } else {
+      id = spellbookData.editing.id;
+    }
 
     const newSpellbook: Spellbook = {
       name,
@@ -1034,32 +1197,32 @@ $spellbookForm.addEventListener('submit', async (event: Event) => {
       await getClassSpells($classSelect.value, newSpellbook.spells);
     }
 
-    spellbookData.spellbooks.push(newSpellbook);
+    if (spellbookData.editing) {
+      newSpellbook.spells = spellbookData.editing.spells;
+
+      const replaceIndex = spellbookData.spellbooks.indexOf(
+        spellbookData.spellbooks.find(
+          (spellbook) => spellbook.id === spellbookData.editing?.id,
+        ) as Spellbook,
+      );
+      spellbookData.spellbooks.splice(replaceIndex, 1, newSpellbook);
+      spellbookData.editing = null;
+    } else {
+      spellbookData.spellbooks.push(newSpellbook);
+
+      const $bookLink = renderSpellbookLink(newSpellbook.name, newSpellbook.id);
+      $menuSpellbooksUl.appendChild($bookLink);
+
+      reSortSpellbookLinks();
+    }
+
     writeData();
 
-    swapViews('spells list');
+    toSpellbook(newSpellbook.name, newSpellbook.id);
 
     $spellbookForm.reset();
     $classLevelGroup.classList.add('hidden');
     $abilityModGroup.classList.add('hidden');
-
-    const $bookLink = renderSpellbookLink(newSpellbook.name, newSpellbook.id);
-    $menuSpellbooksUl.appendChild($bookLink);
-
-    const bookLinkArr = Array.from(
-      $menuSpellbooksUl.children,
-    ) as HTMLDivElement[];
-    bookLinkArr.sort((a, b) => {
-      const firstName = a.textContent as string;
-      const secondName = b.textContent as string;
-      return firstName.localeCompare(secondName);
-    });
-
-    bookLinkArr.forEach((element) => {
-      $menuSpellbooksUl.appendChild(element);
-    });
-
-    toSpellbook(newSpellbook.name);
   } catch (err) {
     console.error('Error:', err);
   }
@@ -1093,6 +1256,6 @@ async function getClassSpells(
 
 $spellbookFormCancelBtn.addEventListener('click', () => {
   $spellbookForm.reset();
-  cardSort.spellbook = null;
+  spellbookData.editing = null;
   swapViews('spells list');
 });

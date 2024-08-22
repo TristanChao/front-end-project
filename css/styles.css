@@ -19,6 +19,10 @@ button {
   font-family: Quattrocento, 'Times New Roman', Times, serif;
 }
 
+dialog {
+  border: 2px solid #acacac;
+}
+
 button:hover {
   cursor: pointer;
 }
@@ -101,16 +105,9 @@ a:hover {
   margin-top: 0;
   margin-bottom: 0;
   border: none;
-  padding: 0;
   max-height: 100vh;
   height: 100vh;
   width: 280px;
-}
-
-#collision-div {
-  padding: 20px 16px;
-  height: 100%;
-  position: relative;
 }
 
 #close-menu-btn {
@@ -161,6 +158,17 @@ a:hover {
 
 #spells-list-header {
   margin-right: 8px;
+}
+
+#spellbook-settings-btn {
+  height: 30px;
+  width: 30px;
+  font-size: 18px;
+  padding-top: 5px;
+  margin-right: 20px;
+  border: none;
+  background-color: #f00;
+  color: white;
 }
 
 #spells-list-sort-search-filter-div {
@@ -321,6 +329,39 @@ a:hover {
 .spell-card-name-span {
   font-size: 20px;
   text-align: center;
+}
+
+/* Spellbook Settings */
+
+#spellbook-settings-dialog .collision-div {
+  margin-top: 15px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+#spellbook-settings-dialog button {
+  font-size: 20px;
+  margin-bottom: 15px;
+}
+
+#confirm-delete-dialog p {
+  font-size: 18px;
+}
+
+#confirm-delete-dialog button {
+  font-size: 16px;
+  padding: 5px 10px;
+  border: none;
+  color: white;
+}
+
+#cancel-delete-btn {
+  background-color: #333;
+}
+
+#confirm-delete-btn {
+  background-color: #f00;
 }
 
 /* SPELL DETAILS VIEW */
