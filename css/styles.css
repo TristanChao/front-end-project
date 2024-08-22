@@ -314,6 +314,15 @@ a:hover {
 
 .spell-circle-img {
   width: 100%;
+  transition: filter 0.5s;
+}
+
+.spell-circle-img.dark {
+  filter: brightness(0%);
+}
+
+.spell-circle-img.light {
+  filter: brightness(100%);
 }
 
 .spell-card-name-div {

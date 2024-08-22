@@ -277,6 +277,7 @@ function resetFilter() {
 const cardsArray = [];
 const cardSort = {
   spellbook: null,
+  managing: null,
   sort: 'name',
   filter: {
     name: '',
@@ -297,6 +298,9 @@ function renderCard(spellName, spellLevel, spellUrl) {
   const $levelSpan = document.createElement('span');
   $levelSpan.className = 'card-level-span';
   $levelSpan.textContent = levelNumberToString(spellLevel);
+  const $toggleIncludeBtn = document.createElement('button');
+  $toggleIncludeBtn.className = 'toggle-include add hidden';
+  $toggleIncludeBtn.setAttribute('data-include', '');
   const $spellCircleDiv = document.createElement('div');
   $spellCircleDiv.className = 'spell-circle-div';
   const $spellCircleImg = document.createElement('img');
@@ -420,6 +424,7 @@ $confirmDeleteBtn.addEventListener('click', () => {
 $closeSpellbookSettingsBtn.addEventListener('click', () => {
   $spellbookSettingsDialog.close();
 });
+// SPELLBOOK MANAGEMENT =======================================================
 // SEARCH/SORT/FILTER =========================================================
 const $spellsListSortDropdown = document.querySelector(
   '#spells-list-sort-dropdown',
@@ -545,7 +550,28 @@ async function filterSpellsList() {
     });
     let spellbookViewing;
     const spellbookSpellNames = [];
-    if (cardSort.spellbook) {
+    const classSpellNames = [];
+    const managingClass = spellbookData.spellbooks.find(
+      (book) => book.id === cardSort.managing?.id,
+    )?.class;
+    if (cardSort.managing) {
+      if (managingClass) {
+        const response = await fetch(
+          `https://www.dnd5eapi.co/classes/${managingClass}/spells`,
+        );
+        if (!response.ok) throw new Error(`Fetch error: ${response.status}`);
+        const classSpellsObj = await response.json();
+        classSpellsObj.results.forEach((element) => {
+          classSpellNames.push(element.name);
+        });
+      }
+      spellbookViewing = spellbookData.spellbooks.find(
+        (book) => book.name === cardSort.spellbook?.name,
+      );
+      spellbookViewing.spells.forEach((element) => {
+        spellbookSpellNames.push(element);
+      });
+    } else if (cardSort.spellbook) {
       spellbookViewing = spellbookData.spellbooks.find(
         (book) => book.name === cardSort.spellbook?.name,
       );
@@ -558,7 +584,20 @@ async function filterSpellsList() {
     cardsArray.forEach((element) => {
       const elementName = element.getAttribute('data-name');
       if (!elementName) return;
-      if (cardSort.spellbook) {
+      if (cardSort.managing) {
+        if (managingClass) {
+          if (
+            filteredSpellNames.includes(elementName) &&
+            classSpellNames.includes(elementName)
+          ) {
+            element.classList.remove('hidden');
+          } else {
+            element.classList.add('hidden');
+          }
+        } else {
+          element.classList.remove('hidden');
+        }
+      } else if (cardSort.spellbook) {
         if (
           filteredSpellNames.includes(elementName) &&
           spellbookSpellNames.includes(elementName)
