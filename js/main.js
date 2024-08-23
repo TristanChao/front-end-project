@@ -37,6 +37,7 @@ async function toSpellsList() {
     $spellbookClassLevelHeader.textContent = '';
     resetFilter();
     $spellbookSettingsBtn.classList.add('hidden');
+    $spellbookManageSpellsBtn.classList.replace('hidden-5-col', 'hidden');
     swapViews('spells list');
   } catch (err) {
     console.error('Error:', err);
@@ -63,6 +64,10 @@ async function toSpellbook(bookName, bookId) {
     }
     resetFilter();
     $spellbookSettingsBtn.classList.remove('hidden');
+    $spellbookManageSpellsBtn.classList.replace('hidden', 'hidden-5-col');
+    cardSort.sort = 'level';
+    $spellsListSortDropdown.value = 'level';
+    sortCards(cardSort.sort);
     swapViews('spells list');
   } catch (err) {
     console.error('Error:', err);
@@ -305,7 +310,7 @@ function renderCard(spellName, spellLevel, spellUrl) {
   const $spellCircleDiv = document.createElement('div');
   $spellCircleDiv.className = 'spell-circle-div';
   const $spellCircleImg = document.createElement('img');
-  $spellCircleImg.className = 'spell-circle-img';
+  $spellCircleImg.className = 'spell-circle-img light';
   $spellCircleImg.setAttribute('src', randomSpellCircleColor());
   $spellCircleImg.setAttribute('alt', 'Spell Circle');
   const $nameDiv = document.createElement('div');
@@ -445,9 +450,12 @@ if (!$spellbookSettingsManageSpellsBtn)
   throw new Error('$spellbookSettingsManageSpellsBtn query failed');
 async function handleManageSpellsClick() {
   try {
-    $spellbookManageSpellsBtn.classList.add('hidden');
     $spellbookSettingsBtn.classList.add('hidden');
     $spellbookManageSaveBtn.classList.remove('hidden');
+    $spellbookManageSpellsBtn.classList.replace('hidden-5-col', 'hidden');
+    $navbarSpellsListViewAnchor.classList.replace('hidden-small', 'hidden');
+    $navbarNewSpellbookBtn.classList.replace('hidden-4-col', 'hidden');
+    $menuBtn.classList.add('hidden');
     resetFilter();
     $spellsListSortDropdown.value = 'level';
     cardSort.sort = 'level';
@@ -456,7 +464,18 @@ async function handleManageSpellsClick() {
     $spellbookSettingsDialog.close();
     sortCards(cardSort.sort);
     await filterSpellsList();
-    cardsArray.forEach((element) => {
+    const $allToggleIncludeBtns = document.querySelectorAll(
+      'button.toggle-include',
+    );
+    const $allSpellCircleImgs = document.querySelectorAll(
+      'img.spell-circle-img',
+    );
+    if (!$allToggleIncludeBtns)
+      throw new Error('$allToggleIncludeBtns query failed');
+    if (!$allSpellCircleImgs)
+      throw new Error('$allSpellCircleImgs query failed');
+    for (let i = 0; i < cardsArray.length; i++) {
+      const element = cardsArray[i];
       const elementName = element.getAttribute('data-name');
       const managing = spellbookData.spellbooks.find(
         (book) => book.id === cardSort.managing?.id,
@@ -465,27 +484,46 @@ async function handleManageSpellsClick() {
         throw new Error(
           'handleManageSpellsClick managing variable not defined',
         );
-      const $toggleIncludeBtn = element.querySelector('.toggle-include');
-      if (!$toggleIncludeBtn)
-        throw new Error(
-          'handleManageSpellsClick() $toggleIncludeBtn query failed',
-        );
+      const $toggleIncludeBtn = $allToggleIncludeBtns[i];
       $toggleIncludeBtn.classList.remove('hidden');
       if (!managing.spells.includes(elementName)) {
-        const $spellCircle = element.querySelector('img');
-        if (!$spellCircle)
-          throw new Error(
-            'handleManageSpellsClick() $spellCircle query failed',
-          );
-        $spellCircle.classList.add('dark');
+        const $spellCircle = $allSpellCircleImgs[i];
+        $spellCircle.classList.replace('light', 'dark');
       } else {
         $toggleIncludeBtn.classList.replace('add', 'remove');
         $toggleIncludeBtn.children[0].classList.replace('fa-plus', 'fa-minus');
       }
-    });
+    }
   } catch (err) {
     console.error('Error:', err);
   }
+}
+function handleLeaveManageMode() {
+  const $allToggleIncludeBtns = document.querySelectorAll(
+    'button.toggle-include',
+  );
+  const $allSpellCircleImgs = document.querySelectorAll('img.spell-circle-img');
+  if (!$allToggleIncludeBtns)
+    throw new Error('$allToggleIncludeBtns query failed');
+  if (!$allSpellCircleImgs) throw new Error('$allSpellCircleImgs query failed');
+  $allToggleIncludeBtns.forEach(($btn) => {
+    $btn.classList.add('hidden');
+  });
+  $allSpellCircleImgs.forEach(($circle) => {
+    if ($circle.classList.contains('dark')) {
+      $circle.classList.replace('dark', 'light');
+    }
+  });
+  $spellbookManageSaveBtn.classList.add('hidden');
+  $spellbookSettingsBtn.classList.remove('hidden');
+  $spellbookManageSpellsBtn.classList.replace('hidden', 'hidden-5-col');
+  $navbarSpellsListViewAnchor.classList.replace('hidden', 'hidden-small');
+  $navbarNewSpellbookBtn.classList.replace('hidden', 'hidden-4-col');
+  $menuBtn.classList.remove('hidden');
+  cardSort.spellbook = cardSort.managing;
+  cardSort.managing = null;
+  resetFilter();
+  filterSpellsList();
 }
 $spellbookManageSpellsBtn.addEventListener('click', async () => {
   try {
@@ -501,6 +539,9 @@ $spellbookSettingsManageSpellsBtn.addEventListener('click', async () => {
   } catch (err) {
     console.error('Error:', err);
   }
+});
+$spellbookManageSaveBtn.addEventListener('click', () => {
+  handleLeaveManageMode();
 });
 // SEARCH/SORT/FILTER =========================================================
 const $spellsListSortDropdown = document.querySelector(
@@ -847,30 +888,23 @@ $spellsListCardsDiv.addEventListener('click', async (event) => {
       const currentSpellbookSpells =
         spellbookData.spellbooks[indexOfSpellbookById(cardSort.managing.id)]
           .spells;
-      // console.log('currentSpellbookSpells before:', currentSpellbookSpells);
       const $spellCircle = $targetCard.querySelector('img');
       if (!$spellCircle)
         throw new Error('card div click event $spellCircle query failed');
       const spellName = $targetCard.getAttribute('data-name');
       const included = currentSpellbookSpells.includes(spellName);
-      console.log('included:', included);
-      console.log('spellName:', spellName);
       if (included) {
         $targetBtn.classList.replace('remove', 'add');
-        console.log(
-          'remove',
-          spellName,
-          'at',
-          currentSpellbookSpells.indexOf(spellName),
-        );
         currentSpellbookSpells.splice(
           currentSpellbookSpells.indexOf(spellName),
           1,
         );
         $spellCircle.classList.replace('light', 'dark');
+        $targetIcon.classList.replace('fa-minus', 'fa-plus');
       } else {
         $targetBtn.classList.replace('add', 'remove');
         $spellCircle.classList.replace('dark', 'light');
+        $targetIcon.classList.replace('fa-plus', 'fa-minus');
         currentSpellbookSpells.push(spellName);
         currentSpellbookSpells.sort();
       }
