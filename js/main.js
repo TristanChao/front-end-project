@@ -1149,6 +1149,7 @@ $spellbookForm.addEventListener('submit', async (event) => {
     $spellbookForm.reset();
     $classLevelGroup.classList.add('hidden');
     $abilityModGroup.classList.add('hidden');
+    $autofillGroupDiv.classList.add('hidden');
   } catch (err) {
     console.error('Error:', err);
   }
