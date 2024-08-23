@@ -56,6 +56,7 @@ async function toSpellsList(): Promise<void> {
     $spellbookClassLevelHeader.textContent = '';
     resetFilter();
     $spellbookSettingsBtn.classList.add('hidden');
+    $spellbookManageSpellsBtn.classList.replace('hidden-5-col', 'hidden');
     swapViews('spells list');
   } catch (err) {
     console.error('Error:', err);
@@ -83,6 +84,10 @@ async function toSpellbook(bookName: string, bookId: number): Promise<void> {
     }
     resetFilter();
     $spellbookSettingsBtn.classList.remove('hidden');
+    $spellbookManageSpellsBtn.classList.replace('hidden', 'hidden-5-col');
+    cardSort.sort = 'level';
+    $spellsListSortDropdown.value = 'level';
+    sortCards(cardSort.sort);
     swapViews('spells list');
   } catch (err) {
     console.error('Error:', err);
@@ -348,6 +353,7 @@ function resetFilter(): void {
 
 interface Sorting {
   spellbook: null | { name: string; id: number };
+  managing: null | { name: string; id: number };
   sort: string;
   filter: {
     name: string;
@@ -360,6 +366,7 @@ const cardsArray: HTMLDivElement[] = [];
 
 const cardSort: Sorting = {
   spellbook: null,
+  managing: null,
   sort: 'name',
   filter: {
     name: '',
@@ -383,17 +390,23 @@ function renderCard(
   $card.setAttribute('data-level', spellLevel.toString());
 
   const $topDiv = document.createElement('div');
-  $topDiv.className = 'card-top-div';
+  $topDiv.className = 'card-top-div row justify-sb';
 
   const $levelSpan = document.createElement('span');
   $levelSpan.className = 'card-level-span';
   $levelSpan.textContent = levelNumberToString(spellLevel);
 
+  const $toggleIncludeBtn = document.createElement('button');
+  $toggleIncludeBtn.className = 'toggle-include add hidden';
+
+  const $toggleIncludeIcon = document.createElement('i');
+  $toggleIncludeIcon.className = 'fa-solid fa-plus';
+
   const $spellCircleDiv = document.createElement('div');
   $spellCircleDiv.className = 'spell-circle-div';
 
   const $spellCircleImg = document.createElement('img');
-  $spellCircleImg.className = 'spell-circle-img';
+  $spellCircleImg.className = 'spell-circle-img light';
   $spellCircleImg.setAttribute('src', randomSpellCircleColor());
   $spellCircleImg.setAttribute('alt', 'Spell Circle');
 
@@ -420,6 +433,8 @@ function renderCard(
 
   $card.appendChild($topDiv);
   $topDiv.appendChild($levelSpan);
+  $topDiv.appendChild($toggleIncludeBtn);
+  $toggleIncludeBtn.appendChild($toggleIncludeIcon);
   $card.appendChild($spellCircleDiv);
   $spellCircleDiv.appendChild($spellCircleImg);
   $card.appendChild($nameDiv);
@@ -550,6 +565,143 @@ $confirmDeleteBtn.addEventListener('click', () => {
 
 $closeSpellbookSettingsBtn.addEventListener('click', () => {
   $spellbookSettingsDialog.close();
+});
+
+// SPELLBOOK MANAGEMENT =======================================================
+
+const $spellbookManageSpellsBtn = document.querySelector(
+  '#spellbook-manage-spells-btn',
+) as HTMLButtonElement;
+const $spellbookManageSaveBtn = document.querySelector(
+  '#spellbook-manage-save-btn',
+) as HTMLButtonElement;
+const $spellbookSettingsManageSpellsBtn = document.querySelector(
+  '#spellbook-settings-manage-spells-btn',
+) as HTMLButtonElement;
+
+if (!$spellbookManageSpellsBtn)
+  throw new Error('$spellbookManageSpellsBtn query failed');
+if (!$spellbookManageSaveBtn)
+  throw new Error('$spellbookManageSaveBtn query failed');
+if (!$spellbookSettingsManageSpellsBtn)
+  throw new Error('$spellbookSettingsManageSpellsBtn query failed');
+
+async function handleManageSpellsClick(): Promise<void> {
+  try {
+    $spellbookSettingsBtn.classList.add('hidden');
+    $spellbookManageSaveBtn.classList.remove('hidden');
+    $spellbookManageSpellsBtn.classList.replace('hidden-5-col', 'hidden');
+
+    $navbarSpellsListViewAnchor.classList.replace('hidden-small', 'hidden');
+    $navbarNewSpellbookBtn.classList.replace('hidden-4-col', 'hidden');
+    $menuBtn.classList.add('hidden');
+
+    resetFilter();
+    $spellsListSortDropdown.value = 'level';
+    cardSort.sort = 'level';
+    cardSort.managing = cardSort.spellbook;
+    cardSort.spellbook = null;
+
+    $spellbookSettingsDialog.close();
+    sortCards(cardSort.sort);
+    await filterSpellsList();
+
+    const $allToggleIncludeBtns = document.querySelectorAll(
+      'button.toggle-include',
+    ) as NodeListOf<HTMLButtonElement>;
+    const $allSpellCircleImgs = document.querySelectorAll(
+      'img.spell-circle-img',
+    ) as NodeListOf<HTMLImageElement>;
+
+    if (!$allToggleIncludeBtns)
+      throw new Error('$allToggleIncludeBtns query failed');
+    if (!$allSpellCircleImgs)
+      throw new Error('$allSpellCircleImgs query failed');
+
+    for (let i = 0; i < cardsArray.length; i++) {
+      const element = cardsArray[i];
+
+      const elementName = element.getAttribute('data-name') as string;
+      const managing = spellbookData.spellbooks.find(
+        (book) => book.id === cardSort.managing?.id,
+      );
+
+      if (!managing)
+        throw new Error(
+          'handleManageSpellsClick managing variable not defined',
+        );
+
+      const $toggleIncludeBtn = $allToggleIncludeBtns[i];
+
+      $toggleIncludeBtn.classList.remove('hidden');
+
+      if (!managing.spells.includes(elementName)) {
+        const $spellCircle = $allSpellCircleImgs[i];
+
+        $spellCircle.classList.replace('light', 'dark');
+      } else {
+        $toggleIncludeBtn.classList.replace('add', 'remove');
+        $toggleIncludeBtn.children[0].classList.replace('fa-plus', 'fa-minus');
+      }
+    }
+  } catch (err) {
+    console.error('Error:', err);
+  }
+}
+
+function handleLeaveManageMode(): void {
+  const $allToggleIncludeBtns = document.querySelectorAll(
+    'button.toggle-include',
+  ) as NodeListOf<HTMLButtonElement>;
+  const $allSpellCircleImgs = document.querySelectorAll(
+    'img.spell-circle-img',
+  ) as NodeListOf<HTMLImageElement>;
+
+  if (!$allToggleIncludeBtns)
+    throw new Error('$allToggleIncludeBtns query failed');
+  if (!$allSpellCircleImgs) throw new Error('$allSpellCircleImgs query failed');
+
+  $allToggleIncludeBtns.forEach(($btn) => {
+    $btn.classList.add('hidden');
+  });
+  $allSpellCircleImgs.forEach(($circle) => {
+    if ($circle.classList.contains('dark')) {
+      $circle.classList.replace('dark', 'light');
+    }
+  });
+
+  $spellbookManageSaveBtn.classList.add('hidden');
+  $spellbookSettingsBtn.classList.remove('hidden');
+  $spellbookManageSpellsBtn.classList.replace('hidden', 'hidden-5-col');
+
+  $navbarSpellsListViewAnchor.classList.replace('hidden', 'hidden-small');
+  $navbarNewSpellbookBtn.classList.replace('hidden', 'hidden-4-col');
+  $menuBtn.classList.remove('hidden');
+
+  cardSort.spellbook = cardSort.managing;
+  cardSort.managing = null;
+  resetFilter();
+  filterSpellsList();
+}
+
+$spellbookManageSpellsBtn.addEventListener('click', async () => {
+  try {
+    await handleManageSpellsClick();
+  } catch (err) {
+    console.error('Error:', err);
+  }
+});
+$spellbookSettingsManageSpellsBtn.addEventListener('click', async () => {
+  try {
+    $spellbookSettingsDialog.close();
+    await handleManageSpellsClick();
+  } catch (err) {
+    console.error('Error:', err);
+  }
+});
+
+$spellbookManageSaveBtn.addEventListener('click', () => {
+  handleLeaveManageMode();
 });
 
 // SEARCH/SORT/FILTER =========================================================
@@ -700,7 +852,28 @@ async function filterSpellsList(): Promise<void> {
 
     let spellbookViewing: Spellbook;
     const spellbookSpellNames: string[] = [];
-    if (cardSort.spellbook) {
+    const classSpellNames: string[] = [];
+    const managingClass = spellbookData.spellbooks.find(
+      (book) => book.id === cardSort.managing?.id,
+    )?.class;
+    if (cardSort.managing) {
+      if (managingClass) {
+        const response = await fetch(
+          `https://www.dnd5eapi.co/api/classes/${managingClass}/spells`,
+        );
+        if (!response.ok) throw new Error(`Fetch error: ${response.status}`);
+        const classSpellsObj = (await response.json()) as AllSpells;
+        classSpellsObj.results.forEach((element) => {
+          classSpellNames.push(element.name);
+        });
+      }
+      spellbookViewing = spellbookData.spellbooks.find(
+        (book) => book.name === cardSort.managing?.name,
+      ) as Spellbook;
+      spellbookViewing.spells.forEach((element) => {
+        spellbookSpellNames.push(element);
+      });
+    } else if (cardSort.spellbook) {
       spellbookViewing = spellbookData.spellbooks.find(
         (book) => book.name === cardSort.spellbook?.name,
       ) as Spellbook;
@@ -714,7 +887,20 @@ async function filterSpellsList(): Promise<void> {
     cardsArray.forEach((element: HTMLDivElement) => {
       const elementName = element.getAttribute('data-name') as string;
       if (!elementName) return;
-      if (cardSort.spellbook) {
+      if (cardSort.managing) {
+        if (managingClass) {
+          if (
+            filteredSpellNames.includes(elementName) &&
+            classSpellNames.includes(elementName)
+          ) {
+            element.classList.remove('hidden');
+          } else {
+            element.classList.add('hidden');
+          }
+        } else {
+          element.classList.remove('hidden');
+        }
+      } else if (cardSort.spellbook) {
         if (
           filteredSpellNames.includes(elementName) &&
           spellbookSpellNames.includes(elementName)
@@ -909,141 +1095,182 @@ function generateFullSubclassName(subclass: string): string {
 
 let spellDetails: SpellDetails;
 
-$spellsListView.addEventListener('click', async (event: Event) => {
+$spellsListCardsDiv.addEventListener('click', async (event: Event) => {
   try {
     const $target = event.target as HTMLElement;
-
     const $targetCard = $target.closest('div.card') as HTMLDivElement;
 
-    if (!$targetCard) {
-      return;
+    let $targetBtn: HTMLButtonElement | null;
+    let $targetIcon: HTMLElement | null;
+
+    if ($target.matches('i')) {
+      $targetBtn = $target.closest('.toggle-include');
+      $targetIcon = event.target as HTMLElement;
+    } else if ($target.matches('.toggle-include')) {
+      $targetBtn = event.target as HTMLButtonElement;
+      $targetIcon = $targetBtn.children[0] as HTMLElement;
+    } else {
+      $targetBtn = null;
+      $targetIcon = null;
     }
 
-    const cardSpellUrl = $targetCard.getAttribute('data-url');
+    if ($targetBtn && $targetIcon && cardSort.managing) {
+      const currentSpellbookSpells = spellbookData.spellbooks[
+        indexOfSpellbookById(cardSort.managing.id)
+      ].spells as string[];
 
-    $spellsListView.classList.add('hidden');
+      const $spellCircle = $targetCard.querySelector('img') as HTMLImageElement;
+      if (!$spellCircle)
+        throw new Error('card div click event $spellCircle query failed');
 
-    if (!cardSpellUrl) throw new Error('cardSpellUrl does not exist');
+      const spellName = $targetCard.getAttribute('data-name') as string;
 
-    await getSpellDetails(cardSpellUrl);
+      const included = currentSpellbookSpells.includes(spellName);
 
-    // NAME
-    $spellDetailsName.textContent = spellDetails.name;
+      if (included) {
+        $targetBtn.classList.replace('remove', 'add');
+        currentSpellbookSpells.splice(
+          currentSpellbookSpells.indexOf(spellName),
+          1,
+        );
+        $spellCircle.classList.replace('light', 'dark');
+        $targetIcon.classList.replace('fa-minus', 'fa-plus');
+      } else {
+        $targetBtn.classList.replace('add', 'remove');
+        $spellCircle.classList.replace('dark', 'light');
+        $targetIcon.classList.replace('fa-plus', 'fa-minus');
+        currentSpellbookSpells.push(spellName);
+        currentSpellbookSpells.sort();
+      }
 
-    // LEVEL, SCHOOL
-    $spellDetailsLevelSchool.textContent = levelNumberToString(
-      spellDetails.level,
-    );
-    if (spellDetails.level !== 0) {
-      $spellDetailsLevelSchool.textContent += ' Level ';
-    } else {
-      $spellDetailsLevelSchool.textContent += ' ';
-    }
-    $spellDetailsLevelSchool.textContent += spellDetails.school.name;
+      writeData();
+    } else if ($targetCard) {
+      const cardSpellUrl = $targetCard.getAttribute('data-url');
 
-    // CAST TIME
-    $spellDetailsCastTime.textContent = spellDetails.casting_time;
+      if (!cardSpellUrl) throw new Error('cardSpellUrl does not exist');
 
-    // RANGE
-    $spellDetailsRange.textContent = spellDetails.range;
+      $spellsListView.classList.add('hidden');
 
-    // COMPONENTS
-    if (spellDetails.components.length === 1) {
-      $spellDetailsComponents.textContent = spellDetails.components[0];
-    } else {
-      for (let i = 0; i < spellDetails.components.length; i++) {
-        if (i === 0) {
-          $spellDetailsComponents.textContent =
-            spellDetails.components[i] + ', ';
-        } else if (i < spellDetails.components.length - 1) {
-          $spellDetailsComponents.textContent +=
-            spellDetails.components[i] + ', ';
-        } else {
-          $spellDetailsComponents.textContent += spellDetails.components[i];
+      await getSpellDetails(cardSpellUrl);
+
+      // NAME
+      $spellDetailsName.textContent = spellDetails.name;
+
+      // LEVEL, SCHOOL
+      $spellDetailsLevelSchool.textContent = levelNumberToString(
+        spellDetails.level,
+      );
+      if (spellDetails.level !== 0) {
+        $spellDetailsLevelSchool.textContent += ' Level ';
+      } else {
+        $spellDetailsLevelSchool.textContent += ' ';
+      }
+      $spellDetailsLevelSchool.textContent += spellDetails.school.name;
+
+      // CAST TIME
+      $spellDetailsCastTime.textContent = spellDetails.casting_time;
+
+      // RANGE
+      $spellDetailsRange.textContent = spellDetails.range;
+
+      // COMPONENTS
+      if (spellDetails.components.length === 1) {
+        $spellDetailsComponents.textContent = spellDetails.components[0];
+      } else {
+        for (let i = 0; i < spellDetails.components.length; i++) {
+          if (i === 0) {
+            $spellDetailsComponents.textContent =
+              spellDetails.components[i] + ', ';
+          } else if (i < spellDetails.components.length - 1) {
+            $spellDetailsComponents.textContent +=
+              spellDetails.components[i] + ', ';
+          } else {
+            $spellDetailsComponents.textContent += spellDetails.components[i];
+          }
         }
       }
-    }
 
-    // DURATION
-    $spellDetailsDuration.textContent = spellDetails.duration;
+      // DURATION
+      $spellDetailsDuration.textContent = spellDetails.duration;
 
-    // CLEAR DESCRIPTIONS
-    while ($spellDetailsDescriptionDiv.childNodes.length > 0) {
-      if (!$spellDetailsDescriptionDiv.firstElementChild) break;
-      $spellDetailsDescriptionDiv.removeChild(
-        $spellDetailsDescriptionDiv.firstElementChild,
-      );
-    }
+      // CLEAR DESCRIPTIONS
+      while ($spellDetailsDescriptionDiv.childNodes.length > 0) {
+        if (!$spellDetailsDescriptionDiv.firstElementChild) break;
+        $spellDetailsDescriptionDiv.removeChild(
+          $spellDetailsDescriptionDiv.firstElementChild,
+        );
+      }
 
-    // ADD DESCRIPTIONS
-    for (let i = 0; i < spellDetails.desc.length; i++) {
-      const $descPar = document.createElement('div');
-      $descPar.textContent = spellDetails.desc[i];
-      $spellDetailsDescriptionDiv.appendChild($descPar);
-    }
+      // ADD DESCRIPTIONS
+      for (let i = 0; i < spellDetails.desc.length; i++) {
+        const $descPar = document.createElement('div');
+        $descPar.textContent = spellDetails.desc[i];
+        $spellDetailsDescriptionDiv.appendChild($descPar);
+      }
 
-    // CLEAR HIGHER LEVELS
-    while ($spellDetailsHigherLevelDiv.childNodes.length > 0) {
-      if (!$spellDetailsHigherLevelDiv.firstElementChild) break;
-      $spellDetailsHigherLevelDiv.removeChild(
-        $spellDetailsHigherLevelDiv.firstElementChild,
-      );
-    }
+      // CLEAR HIGHER LEVELS
+      while ($spellDetailsHigherLevelDiv.childNodes.length > 0) {
+        if (!$spellDetailsHigherLevelDiv.firstElementChild) break;
+        $spellDetailsHigherLevelDiv.removeChild(
+          $spellDetailsHigherLevelDiv.firstElementChild,
+        );
+      }
 
-    // ADD HIGHER LEVELS
-    if (spellDetails.higher_level.length > 0) {
-      const $labelSpan = document.createElement('span');
-      $labelSpan.textContent = 'At Higher Levels: ';
-      $labelSpan.setAttribute('style', 'font-weight: 700');
+      // ADD HIGHER LEVELS
+      if (spellDetails.higher_level.length > 0) {
+        const $labelSpan = document.createElement('span');
+        $labelSpan.textContent = 'At Higher Levels: ';
+        $labelSpan.setAttribute('style', 'font-weight: 700');
 
-      const $textSpan = document.createElement('span');
-      $textSpan.textContent = spellDetails.higher_level[0];
+        const $textSpan = document.createElement('span');
+        $textSpan.textContent = spellDetails.higher_level[0];
 
-      $spellDetailsHigherLevelDiv.appendChild($labelSpan);
-      $spellDetailsHigherLevelDiv.appendChild($textSpan);
-    }
+        $spellDetailsHigherLevelDiv.appendChild($labelSpan);
+        $spellDetailsHigherLevelDiv.appendChild($textSpan);
+      }
 
-    // CLASSES
-    if (spellDetails.classes.length === 1) {
-      $spellDetailsClasses.textContent = spellDetails.classes[0].name;
-    } else {
-      for (let i = 0; i < spellDetails.classes.length; i++) {
-        if (i === 0) {
-          $spellDetailsClasses.textContent =
-            spellDetails.classes[i].name + ', ';
-        } else if (i < spellDetails.classes.length - 1) {
-          $spellDetailsClasses.textContent +=
-            spellDetails.classes[i].name + ', ';
-        } else {
-          $spellDetailsClasses.textContent += spellDetails.classes[i].name;
+      // CLASSES
+      if (spellDetails.classes.length === 1) {
+        $spellDetailsClasses.textContent = spellDetails.classes[0].name;
+      } else {
+        for (let i = 0; i < spellDetails.classes.length; i++) {
+          if (i === 0) {
+            $spellDetailsClasses.textContent =
+              spellDetails.classes[i].name + ', ';
+          } else if (i < spellDetails.classes.length - 1) {
+            $spellDetailsClasses.textContent +=
+              spellDetails.classes[i].name + ', ';
+          } else {
+            $spellDetailsClasses.textContent += spellDetails.classes[i].name;
+          }
         }
       }
-    }
 
-    // SUBCLASSES
-    if (spellDetails.subclasses.length === 0) {
-      $spellDetailsSubclasses.textContent = 'none';
-    } else if (spellDetails.subclasses.length === 1) {
-      $spellDetailsSubclasses.textContent = generateFullSubclassName(
-        spellDetails.subclasses[0].name,
-      );
-    } else {
-      for (let i = 0; i < spellDetails.subclasses.length; i++) {
-        if (i === 0) {
-          $spellDetailsSubclasses.textContent =
-            generateFullSubclassName(spellDetails.subclasses[i].name) + ', ';
-        } else if (i < spellDetails.subclasses.length - 1) {
-          $spellDetailsSubclasses.textContent +=
-            generateFullSubclassName(spellDetails.subclasses[i].name) + ', ';
-        } else {
-          $spellDetailsSubclasses.textContent += generateFullSubclassName(
-            spellDetails.subclasses[i].name,
-          );
+      // SUBCLASSES
+      if (spellDetails.subclasses.length === 0) {
+        $spellDetailsSubclasses.textContent = 'none';
+      } else if (spellDetails.subclasses.length === 1) {
+        $spellDetailsSubclasses.textContent = generateFullSubclassName(
+          spellDetails.subclasses[0].name,
+        );
+      } else {
+        for (let i = 0; i < spellDetails.subclasses.length; i++) {
+          if (i === 0) {
+            $spellDetailsSubclasses.textContent =
+              generateFullSubclassName(spellDetails.subclasses[i].name) + ', ';
+          } else if (i < spellDetails.subclasses.length - 1) {
+            $spellDetailsSubclasses.textContent +=
+              generateFullSubclassName(spellDetails.subclasses[i].name) + ', ';
+          } else {
+            $spellDetailsSubclasses.textContent += generateFullSubclassName(
+              spellDetails.subclasses[i].name,
+            );
+          }
         }
       }
-    }
 
-    swapViews('spell details');
+      swapViews('spell details');
+    }
   } catch (err) {
     console.error('Error:', err);
   }

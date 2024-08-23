@@ -19,7 +19,15 @@
   cursor: pointer;
 }
 
+.hidden-small {
+  display: none;
+}
+
 .hidden-4-col {
+  display: none;
+}
+
+.hidden-5-col {
   display: none;
 }
 
@@ -36,4 +44,12 @@
 .btn-as-anchor {
   border: none;
   background-color: transparent;
+}
+
+.mr-20 {
+  margin-right: 20px;
+}
+
+.mr-15 {
+  margin-right: 15px;
 }

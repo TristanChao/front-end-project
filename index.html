@@ -22,10 +22,12 @@
       <div class="header">
         <div id="navbar-title-anchor-div">
           <h1 id="title">D&amp;D SpellCards</h1>
-          <a id="navbar-spells-list-view-anchor">All Spells</a>
+          <a id="navbar-spells-list-view-anchor" class="hidden-small"
+            >All Spells</a
+          >
         </div>
         <div id="navbar-spellbook-menu-div">
-          <button id="navbar-new-spellbook-btn" class="hidden-4-col">
+          <button id="navbar-new-spellbook-btn" class="hidden-4-col red-btn">
             + New Spellbook
           </button>
           <button id="menu-btn">
@@ -55,15 +57,27 @@
       </dialog>
       <!-- SPELLS LIST VIEW -->
       <div id="spells-list-view" class="view">
+        <!-- Heading and Heading-Level Buttons -->
         <div class="row justify-sb align-center">
           <div id="spells-list-header-container" class="row">
             <h1 id="spells-list-header">Spells List</h1>
             <h1 id="spellbook-class-level-header" class="hidden-4-col"></h1>
           </div>
-          <button id="spellbook-settings-btn" class="hidden">
-            <i class="fa-solid fa-gear"></i>
-          </button>
+          <div class="mr-20 row align-center">
+            <button
+              id="spellbook-manage-spells-btn"
+              class="hidden black-btn mr-15">
+              Manage Spells
+            </button>
+            <button id="spellbook-manage-save-btn" class="hidden red-btn">
+              Save
+            </button>
+            <button id="spellbook-settings-btn" class="red-btn hidden">
+              <i class="fa-solid fa-gear"></i>
+            </button>
+          </div>
         </div>
+        <!-- Spellbook Settings -->
         <dialog id="spellbook-settings-dialog" class="with-collision-div">
           <div class="collision-div">
             <div>
@@ -74,6 +88,13 @@
             <div>
               <button id="delete-spellbook-btn" class="btn-as-anchor">
                 Delete Spellbook
+              </button>
+            </div>
+            <div>
+              <button
+                id="spellbook-settings-manage-spells-btn"
+                class="btn-as-anchor">
+                Manage Spells
               </button>
             </div>
             <div>
@@ -91,10 +112,11 @@
             ?
           </p>
           <div class="row justify-sb">
-            <button id="cancel-delete-btn">Cancel</button>
-            <button id="confirm-delete-btn">Delete</button>
+            <button id="cancel-delete-btn" class="black-btn">Cancel</button>
+            <button id="confirm-delete-btn" class="red-btn">Delete</button>
           </div>
         </dialog>
+        <!-- Sort, Search, and Filter -->
         <div id="spells-list-sort-search-filter-div">
           <label id="spells-list-sort-label" for="spells-list-sort-dropdown">
             Sort by:
@@ -105,11 +127,16 @@
           </select>
           <form id="spells-list-search-sort-form">
             <input id="spells-list-search-input" placeholder="Search spells:" />
-            <button id="spells-list-search-sort-submit-btn" type="submit">
+            <button
+              id="spells-list-search-sort-submit-btn"
+              type="submit"
+              class="red-btn">
               <i class="fa-solid fa-magnifying-glass"></i>
             </button>
           </form>
-          <button id="spells-list-filter-btn" type="button">Filter</button>
+          <button id="spells-list-filter-btn" type="button" class="black-btn">
+            Filter
+          </button>
         </div>
         <dialog id="spells-list-filter-dialog">
           <form id="spells-list-filter-form">
@@ -148,14 +175,21 @@
               </select>
             </div>
             <div>
-              <button id="clear-filter-btn" type="button">Reset Filters</button>
+              <button id="clear-filter-btn" type="button" class="btn-as-anchor">
+                Reset Filters
+              </button>
             </div>
             <div id="filter-form-buttons-div">
-              <button id="cancel-filter-btn" type="button">Cancel</button>
-              <button id="submit-filter-btn" type="submit">Filter</button>
+              <button id="cancel-filter-btn" type="button" class="black-btn">
+                Cancel
+              </button>
+              <button id="submit-filter-btn" type="submit" class="red-btn">
+                Filter
+              </button>
             </div>
           </form>
         </dialog>
+        <!-- Spell Cards -->
         <p id="no-spells-p" class="hidden">Nothing to see here</p>
         <div id="spells-list-cards-div" class="row"></div>
       </div>
@@ -314,8 +348,15 @@
           </div>
 
           <div class="spellbook-form-group row justify-sb">
-            <button id="spellbook-form-cancel-btn" type="button">Cancel</button>
-            <button id="spellbook-form-save-btn" type="submit">Save</button>
+            <button
+              id="spellbook-form-cancel-btn"
+              type="button"
+              class="black-btn">
+              Cancel
+            </button>
+            <button id="spellbook-form-save-btn" type="submit" class="red-btn">
+              Save
+            </button>
           </div>
         </form>
       </div>
