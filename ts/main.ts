@@ -639,6 +639,8 @@ async function handleManageSpellsClick(): Promise<void> {
         const $spellCircle = $allSpellCircleImgs[i];
 
         $spellCircle.classList.replace('light', 'dark');
+        $toggleIncludeBtn.classList.replace('remove', 'add');
+        $toggleIncludeBtn.children[0].classList.replace('fa-minus', 'fa-plus');
       } else {
         $toggleIncludeBtn.classList.replace('add', 'remove');
         $toggleIncludeBtn.children[0].classList.replace('fa-plus', 'fa-minus');
